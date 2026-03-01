@@ -105,6 +105,14 @@ async function checkPort() {
     return new Promise((resolve) => {
         const server = net.createServer();
         server.once('error', (error) => {
+            if (error && error.code === 'EADDRINUSE') {
+                resolve({
+                    name: '端口',
+                    ok: true,
+                    detail: `端口 ${port} 已被占用（通常是 API 服务正在运行，视为正常）`
+                });
+                return;
+            }
             resolve({
                 name: '端口',
                 ok: false,

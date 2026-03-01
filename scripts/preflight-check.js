@@ -327,6 +327,15 @@ async function checkBailian() {
 }
 
 async function checkWechat(egressIp) {
+    const skipWechat = String(process.env.PREFLIGHT_SKIP_WECHAT || '').trim() === '1';
+    if (skipWechat) {
+        return {
+            name: '微信',
+            ok: true,
+            detail: '已跳过（PREFLIGHT_SKIP_WECHAT=1）'
+        };
+    }
+
     const appId = String(process.env.WECHAT_OFFICIAL_ACCOUNT_APP_ID || '').trim();
     const appSecret = String(process.env.WECHAT_OFFICIAL_ACCOUNT_APP_SECRET || '').trim();
     if (!appId || !appSecret) {

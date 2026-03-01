@@ -22,9 +22,13 @@ if command -v flock >/dev/null 2>&1; then
 fi
 
 log "start preflight check"
-node scripts/preflight-check.js
+if [[ "$ENABLE_WECHAT" == "1" ]]; then
+  node scripts/preflight-check.js
+else
+  PREFLIGHT_SKIP_WECHAT=1 node scripts/preflight-check.js
+fi
 
-if [[ -n "${WECHAT_OFFICIAL_ACCOUNT_APP_ID:-}" && -n "${WECHAT_OFFICIAL_ACCOUNT_APP_SECRET:-}" ]]; then
+if [[ "$ENABLE_WECHAT" == "1" && -n "${WECHAT_OFFICIAL_ACCOUNT_APP_ID:-}" && -n "${WECHAT_OFFICIAL_ACCOUNT_APP_SECRET:-}" ]]; then
   log "start wechat credential check"
   node scripts/wechat-credential-check.js
 fi

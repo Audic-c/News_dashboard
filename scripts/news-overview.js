@@ -56,7 +56,9 @@ function requireEnv(name) {
 function requestJson(url, options = {}, body = null) {
     return new Promise((resolve, reject) => {
         const proxy = process.env.HTTPS_PROXY || process.env.https_proxy || process.env.ALL_PROXY || process.env.all_proxy;
-        const args = ['-sS', '-L', '--connect-timeout', '15', '--max-time', '45'];
+        const connectTimeout = String(options.connectTimeoutSec || process.env.HTTP_CONNECT_TIMEOUT_SEC || '15');
+        const maxTime = String(options.maxTimeSec || process.env.HTTP_MAX_TIME_SEC || '90');
+        const args = ['-sS', '-L', '--connect-timeout', connectTimeout, '--max-time', maxTime];
         if (proxy) {
             args.push('--proxy', proxy);
         }
@@ -664,6 +666,8 @@ function normalizeContentToText(content) {
 
 async function callBailianText(prompt, apiKey, model) {
     const endpoint = process.env.BAILIAN_TEXT_ENDPOINT || 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions';
+    const connectTimeoutSec = Number(process.env.BAILIAN_TEXT_CONNECT_TIMEOUT_SEC || process.env.HTTP_CONNECT_TIMEOUT_SEC || 20);
+    const maxTimeSec = Number(process.env.BAILIAN_TEXT_MAX_TIME_SEC || process.env.HTTP_MAX_TIME_SEC || 120);
     const payload = JSON.stringify({
         model,
         messages: [
@@ -675,6 +679,8 @@ async function callBailianText(prompt, apiKey, model) {
     });
     const response = await requestJson(endpoint, {
         method: 'POST',
+        connectTimeoutSec,
+        maxTimeSec,
         headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${apiKey}`

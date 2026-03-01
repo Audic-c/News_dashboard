@@ -668,6 +668,8 @@ async function callBailianText(prompt, apiKey, model) {
     const endpoint = process.env.BAILIAN_TEXT_ENDPOINT || 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions';
     const connectTimeoutSec = Number(process.env.BAILIAN_TEXT_CONNECT_TIMEOUT_SEC || process.env.HTTP_CONNECT_TIMEOUT_SEC || 20);
     const maxTimeSec = Number(process.env.BAILIAN_TEXT_MAX_TIME_SEC || process.env.HTTP_MAX_TIME_SEC || 120);
+    const retries = Math.max(0, Number(process.env.BAILIAN_TEXT_RETRIES || 2));
+    const retryDelayMs = Math.max(0, Number(process.env.BAILIAN_TEXT_RETRY_DELAY_MS || 1500));
     const payload = JSON.stringify({
         model,
         messages: [
@@ -677,26 +679,38 @@ async function callBailianText(prompt, apiKey, model) {
         top_p: 0.9,
         max_tokens: 1024
     });
-    const response = await requestJson(endpoint, {
-        method: 'POST',
-        connectTimeoutSec,
-        maxTimeSec,
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${apiKey}`
+    let lastError = null;
+    for (let attempt = 0; attempt <= retries; attempt += 1) {
+        try {
+            const response = await requestJson(endpoint, {
+                method: 'POST',
+                connectTimeoutSec,
+                maxTimeSec,
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${apiKey}`
+                }
+            }, payload);
+            if (response.status < 200 || response.status >= 300) {
+                const raw = response.raw || '';
+                throw new Error(`Bailian text API error: HTTP ${response.status} ${raw.slice(0, 500)}`);
+            }
+            const content = response.json?.choices?.[0]?.message?.content;
+            const text = normalizeContentToText(content).trim();
+            if (!text) {
+                const raw = response.raw || '';
+                throw new Error(`Bailian text API returned empty response. Raw: ${raw.slice(0, 500)}`);
+            }
+            return text;
+        } catch (error) {
+            lastError = error;
+            if (attempt < retries) {
+                await sleep(retryDelayMs * (attempt + 1));
+                continue;
+            }
         }
-    }, payload);
-    if (response.status < 200 || response.status >= 300) {
-        const raw = response.raw || '';
-        throw new Error(`Bailian text API error: HTTP ${response.status} ${raw.slice(0, 500)}`);
     }
-    const content = response.json?.choices?.[0]?.message?.content;
-    const text = normalizeContentToText(content).trim();
-    if (!text) {
-        const raw = response.raw || '';
-        throw new Error(`Bailian text API returned empty response. Raw: ${raw.slice(0, 500)}`);
-    }
-    return text;
+    throw lastError || new Error('Bailian text request failed');
 }
 
 async function callSummaryModel(prompt, options = {}) {

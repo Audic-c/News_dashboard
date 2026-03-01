@@ -41,8 +41,8 @@ npm -v
 
 ```bash
 cd ~
-git clone <your-repo-url> my_project
-cd ~/my_project/News_dashboard
+git clone https://github.com/Audic-c/News_dashboard.git my_project
+cd ~/my_project
 ```
 
 - [ ] 安装依赖并创建日志目录
@@ -167,9 +167,9 @@ journalctl -u news-dashboard-pipeline.service -n 100 --no-pager
 - [ ] 项目日志
 
 ```bash
-tail -n 100 ~/my_project/News_dashboard/logs/api-service.log
-tail -n 100 ~/my_project/News_dashboard/logs/pipeline.log
-tail -n 100 ~/my_project/News_dashboard/logs/healthcheck.log
+tail -n 100 ~/my_project/logs/api-service.log
+tail -n 100 ~/my_project/logs/pipeline.log
+tail -n 100 ~/my_project/logs/healthcheck.log
 ```
 
 ## I. 常见问题（快速判断）
@@ -189,7 +189,7 @@ tail -n 100 ~/my_project/News_dashboard/logs/healthcheck.log
 ## J. 你现在最少要执行的 6 条命令
 
 ```bash
-cd ~/my_project/News_dashboard
+cd ~/my_project
 npm ci --omit=dev
 mkdir -p logs && chmod +x scripts/run-pipeline.sh
 node scripts/preflight-check.js

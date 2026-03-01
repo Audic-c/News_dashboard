@@ -1,0 +1,17 @@
+[Unit]
+Description=News Dashboard Daily Pipeline (preflight + refresh + publish)
+After=network-online.target news-dashboard-api.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=cori
+WorkingDirectory=/home/cori/Documents/liam_workfolder/my_project/News_dashboard
+EnvironmentFile=-/home/cori/Documents/liam_workfolder/my_project/News_dashboard/.env
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/env bash /home/cori/Documents/liam_workfolder/my_project/News_dashboard/scripts/run-pipeline.sh
+StandardOutput=append:/home/cori/Documents/liam_workfolder/my_project/News_dashboard/logs/pipeline.log
+StandardError=append:/home/cori/Documents/liam_workfolder/my_project/News_dashboard/logs/pipeline.log
+
+[Install]
+WantedBy=multi-user.target

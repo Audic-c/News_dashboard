@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News Overview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #667eea;
+            --panel: rgba(255,255,255,0.95);
+            --ink: #1e293b;
+            --muted: #64748b;
+            --accent: #764ba2;
+            --accent-2: #667eea;
+            --line: rgba(255,255,255,0.2);
+            --shadow: 0 20px 45px rgba(30, 41, 59, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
+            color: var(--ink);
+            min-height: 100vh;
+        }
+
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            padding: 16px;
+            position: sticky;
+            top: 0;
+            backdrop-filter: blur(10px);
+            background: rgba(102, 126, 234, 0.2);
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            z-index: 10;
+            min-height: 64px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            margin-left: auto;
+            margin-right: 32px;
+        }
+
+        .nav-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            height: 34px;
+            padding: 0 10px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-weight: 600;
+            border: 1px solid rgba(255,255,255,0.3);
+            font-size: 0.8rem;
+            line-height: 1.2;
+            justify-content: center;
+        }
+
+        .status-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+
+        .status-icon .slash {
+            opacity: 0;
+        }
+
+        .nav-status.offline .slash {
+            opacity: 1;
+        }
+
+        .nav-status.online {
+            background: rgba(16, 185, 129, 0.18);
+            border-color: rgba(16, 185, 129, 0.4);
+        }
+
+        .nav-status.offline {
+            background: rgba(239, 68, 68, 0.25);
+            border-color: rgba(239, 68, 68, 0.4);
+        }
+
+        .top-nav a {
+            text-decoration: none;
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .top-nav a.active,
+        .top-nav a:hover {
+            background: rgba(255,255,255,0.2);
+            border-color: rgba(255,255,255,0.6);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 2rem;
+            text-align: center;
+            color: white;
+        }
+
+        .eyebrow {
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.7);
+            font-weight: 600;
+        }
+
+        .title {
+            font-size: 2.6rem;
+            font-weight: 700;
+        }
+
+        .meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            color: rgba(255,255,255,0.85);
+            font-size: 0.95rem;
+            justify-content: center;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 18px 0 30px;
+            align-items: center;
+        }
+
+        .btn {
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn.primary {
+            background: rgba(255,255,255,0.95);
+            color: #4c3b7a;
+            border-color: rgba(255,255,255,0.95);
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 18px;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.95);
+            border: 1px solid rgba(255,255,255,0.6);
+            border-radius: 16px;
+            padding: 18px;
+            box-shadow: var(--shadow);
+        }
+
+        .card.primary {
+            border: 2px solid rgba(255,255,255,0.85);
+            background: rgba(255,255,255,0.98);
+            box-shadow: 0 24px 60px rgba(30, 41, 59, 0.25);
+        }
+
+        .card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 12px;
+        }
+
+        .flip-card {
+            perspective: 1200px;
+        }
+
+        .flip-inner {
+            position: relative;
+            width: 100%;
+            min-height: 520px;
+            transform-style: preserve-3d;
+            transition: transform 0.7s ease;
+        }
+
+        .flip-card.is-flipped .flip-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flip-face {
+            position: absolute;
+            inset: 0;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .flip-back {
+            transform: rotateY(180deg);
+        }
+
+        .flip-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .flip-btn {
+            border: 1px solid rgba(148,163,184,0.6);
+            background: transparent;
+            color: #475569;
+            border-radius: 999px;
+            padding: 6px 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .flip-btn:hover {
+            border-color: #4c3b7a;
+            color: #1e293b;
+        }
+
+        .brief-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .brief-item {
+            padding: 12px 12px 12px 16px;
+            border-left: 3px solid var(--accent-2);
+            background: rgba(102,126,234,0.08);
+            border-radius: 10px;
+            font-size: 0.98rem;
+        }
+
+        .sources {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .source-group h3 {
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .source-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .source-list a {
+            color: #64748b;
+            text-decoration: none;
+            border-bottom: 1px dashed transparent;
+            font-size: 0.9rem;
+        }
+
+        .source-list a:hover {
+            color: #1e293b;
+            border-bottom-color: #94a3b8;
+        }
+
+        .status {
+            color: rgba(255,255,255,0.85);
+            font-size: 0.9rem;
+        }
+
+        .lang-toggle {
+            display: inline-flex;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .lang-toggle button {
+            border: none;
+            background: transparent;
+            padding: 8px 14px;
+            font-weight: 600;
+            cursor: pointer;
+            color: white;
+        }
+
+        .lang-toggle button.active {
+            background: rgba(255,255,255,0.3);
+            color: white;
+        }
+
+        .send-wrap {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            z-index: 20;
+        }
+    </style>
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="lang-toggle" role="group" aria-label="Language Toggle">
+            <button id="lang-en" class="active" type="button">EN</button>
+            <button id="lang-zh" type="button">中文</button>
+        </div>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a class="active" href="news-overview.html">News Overview</a>
+            <a href="news-aggregator.html">Newsroom Live</a>
+        </div>
+        <div class="nav-status online" id="navStatus" aria-live="polite">
+            <span class="status-icon fa-stack" aria-hidden="true">
+                <i class="fas fa-wifi fa-stack-1x"></i>
+                <i class="fas fa-slash fa-stack-1x slash"></i>
+            </span>
+        </div>
+    </nav>
+
+    <div class="container">
+        <header class="header">
+            <div class="eyebrow">News Overview</div>
+            <div class="title" id="brief-title">News Overview</div>
+            <div class="meta">
+                <span id="generated-at">Generated: --</span>
+                <span id="timezone">Time Zone: --</span>
+            </div>
+        </header>
+
+        <div class="controls">
+            <button class="btn primary" id="refresh-btn">Manual Refresh</button>
+            <button class="btn" id="auto-btn" data-auto="on">Auto Refresh: On</button>
+            <span class="status" id="status">Waiting for data...</span>
+        </div>
+
+        <div class="grid">
+            <section class="card primary flip-card" id="overviewCard">
+                <div class="flip-inner">
+                    <div class="flip-face">
+                        <div class="flip-toolbar">
+                            <h2>News Overview</h2>
+                            <button class="flip-btn" id="flipToSources">Sources</button>
+                        </div>
+                        <ul class="brief-list" id="brief-list"></ul>
+                    </div>
+                    <div class="flip-face flip-back">
+                        <div class="flip-toolbar">
+                            <h2 style="color:#475569;">Sources</h2>
+                            <button class="flip-btn" id="flipToOverview">Overview</button>
+                        </div>
+                        <div class="sources" id="sources"></div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <div class="send-wrap">
+        <button class="btn primary" id="send-btn">Send</button>
+    </div>
+
+    <script>
+        const refreshBtn = document.getElementById('refresh-btn');
+        const autoBtn = document.getElementById('auto-btn');
+        const statusEl = document.getElementById('status');
+        const titleEl = document.getElementById('brief-title');
+        const timeEl = document.getElementById('generated-at');
+        const tzEl = document.getElementById('timezone');
+        const briefList = document.getElementById('brief-list');
+        const sourcesWrap = document.getElementById('sources');
+        const langEnBtn = document.getElementById('lang-en');
+        const langZhBtn = document.getElementById('lang-zh');
+        const sendBtn = document.getElementById('send-btn');
+        const navStatus = document.getElementById('navStatus');
+        const overviewCard = document.getElementById('overviewCard');
+        const flipToSources = document.getElementById('flipToSources');
+        const flipToOverview = document.getElementById('flipToOverview');
+
+        let autoRefresh = true;
+        let timerId = null;
+        let currentData = null;
+        let translatedData = null;
+        let currentLang = 'en';
+        const translationCacheKey = 'news_overview_translation_cache_v1';
+
+        function setStatus(text) {
+            statusEl.textContent = text;
+        }
+
+        function updateNavStatus() {
+            const online = navigator.onLine;
+            navStatus.classList.toggle('offline', !online);
+            navStatus.classList.toggle('online', online);
+        }
+
+        function getCachePayload() {
+            try {
+                const raw = localStorage.getItem(translationCacheKey);
+                return raw ? JSON.parse(raw) : null;
+            } catch (error) {
+                return null;
+            }
+        }
+
+        function setCachePayload(payload) {
+            try {
+                localStorage.setItem(translationCacheKey, JSON.stringify(payload));
+            } catch (error) {
+                // Ignore storage errors
+            }
+        }
+
+        function buildOverviewFingerprint(data) {
+            const brief = (data.briefLines || []).join('|');
+            const sources = (data.sources || [])
+                .flatMap((group) => (group.items || []).map((item) => item.title))
+                .join('|');
+            return `${brief}::${sources}`;
+        }
+
+        function renderBrief(data) {
+            titleEl.textContent = data.title || 'News Overview';
+            timeEl.textContent = `Generated: ${data.generatedAt || '--'}`;
+            tzEl.textContent = `Time Zone: ${data.timeZone || '--'}`;
+
+            briefList.innerHTML = '';
+            (data.briefLines || []).forEach((line) => {
+                const li = document.createElement('li');
+                li.className = 'brief-item';
+                li.textContent = line;
+                briefList.appendChild(li);
+            });
+
+            sourcesWrap.innerHTML = '';
+            (data.sources || []).forEach((group) => {
+                const section = document.createElement('div');
+                section.className = 'source-group';
+
+                const title = document.createElement('h3');
+                title.textContent = group.source;
+                section.appendChild(title);
+
+                const list = document.createElement('ul');
+                list.className = 'source-list';
+                (group.items || []).forEach((item) => {
+                    const li = document.createElement('li');
+                    const a = document.createElement('a');
+                    a.href = item.link;
+                    a.target = '_blank';
+                    a.rel = 'noopener';
+                    a.textContent = item.title;
+                    li.appendChild(a);
+                    list.appendChild(li);
+                });
+                section.appendChild(list);
+                sourcesWrap.appendChild(section);
+            });
+        }
+
+        async function fetchBrief() {
+            setStatus('Fetching latest brief...');
+            try {
+                const response = await fetch('/api/news-overview', { cache: 'no-store' });
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                const data = await response.json();
+                currentData = data;
+                translatedData = null;
+                renderBrief(data);
+                setStatus('Updated.');
+            } catch (error) {
+                setStatus('Failed to load daily brief.');
+            }
+        }
+
+        async function translateToZh() {
+            if (!currentData) return;
+            const fingerprint = buildOverviewFingerprint(currentData);
+            const cached = getCachePayload();
+            if (cached && cached.fingerprint === fingerprint && cached.payload) {
+                translatedData = cached.payload;
+                renderBrief(translatedData);
+                setStatus('Translated (cached).');
+                return;
+            }
+            if (translatedData) {
+                renderBrief(translatedData);
+                return;
+            }
+            setStatus('Translating to Chinese...');
+            try {
+                const briefTexts = currentData.briefLines || [];
+                const sourceTitles = (currentData.sources || [])
+                    .flatMap((group) => (group.items || []).map((item) => item.title));
+                const allTexts = [...briefTexts, ...sourceTitles];
+
+                const response = await fetch('/api/translate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ texts: allTexts, to: 'zh-Hans' })
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                const result = await response.json();
+                const translations = result.translations || [];
+                const briefTranslated = translations.slice(0, briefTexts.length);
+                const sourceTranslated = translations.slice(briefTexts.length);
+
+                let idx = 0;
+                const newSources = (currentData.sources || []).map((group) => {
+                    const items = (group.items || []).map((item) => {
+                        const translatedTitle = sourceTranslated[idx] || item.title;
+                        idx += 1;
+                        return { ...item, title: translatedTitle };
+                    });
+                    return { ...group, items };
+                });
+
+                translatedData = {
+                    ...currentData,
+                    title: currentData.title,
+                    briefLines: briefTranslated.length ? briefTranslated : currentData.briefLines,
+                    sources: newSources
+                };
+                setCachePayload({ fingerprint, payload: translatedData });
+                renderBrief(translatedData);
+                setStatus('Translated.');
+            } catch (error) {
+                setStatus('Translation failed.');
+            }
+        }
+
+        async function sendBrief() {
+            const ok = confirm('确认发送最新简报到 Notion + Telegram?');
+            if (!ok) {
+                return;
+            }
+            setStatus('Sending brief...');
+            sendBtn.disabled = true;
+            try {
+                const response = await fetch('/api/send-brief', { method: 'POST' });
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                setStatus('Sent.');
+                await fetchBrief();
+            } catch (error) {
+                setStatus('Send failed.');
+            } finally {
+                sendBtn.disabled = false;
+            }
+        }
+
+        function startAutoRefresh() {
+            if (timerId) {
+                clearInterval(timerId);
+            }
+            timerId = setInterval(() => {
+                if (autoRefresh) {
+                    fetchBrief();
+                }
+            }, 5 * 60 * 1000);
+        }
+
+        refreshBtn.addEventListener('click', fetchBrief);
+        autoBtn.addEventListener('click', () => {
+            autoRefresh = !autoRefresh;
+            autoBtn.dataset.auto = autoRefresh ? 'on' : 'off';
+            autoBtn.textContent = `Auto Refresh: ${autoRefresh ? 'On' : 'Off'}`;
+        });
+        langEnBtn.addEventListener('click', () => {
+            currentLang = 'en';
+            langEnBtn.classList.add('active');
+            langZhBtn.classList.remove('active');
+            if (currentData) {
+                renderBrief(currentData);
+                setStatus('English mode.');
+            }
+        });
+        langZhBtn.addEventListener('click', async () => {
+            currentLang = 'zh';
+            langZhBtn.classList.add('active');
+            langEnBtn.classList.remove('active');
+            await translateToZh();
+        });
+        sendBtn.addEventListener('click', sendBrief);
+
+        function setFlipState(flipped) {
+            overviewCard.classList.toggle('is-flipped', flipped);
+        }
+
+        flipToSources.addEventListener('click', (event) => {
+            event.stopPropagation();
+            setFlipState(true);
+        });
+        flipToOverview.addEventListener('click', (event) => {
+            event.stopPropagation();
+            setFlipState(false);
+        });
+        overviewCard.addEventListener('click', (event) => {
+            const shouldIgnore = event.target.closest('a, button');
+            if (shouldIgnore) {
+                return;
+            }
+            setFlipState(!overviewCard.classList.contains('is-flipped'));
+        });
+
+        fetchBrief();
+        startAutoRefresh();
+        updateNavStatus();
+        window.addEventListener('online', updateNavStatus);
+        window.addEventListener('offline', updateNavStatus);
+    </script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+[Unit]
+Description=News Dashboard API Service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=cori
+WorkingDirectory=/home/cori/Documents/liam_workfolder/my_project/News_dashboard
+EnvironmentFile=-/home/cori/Documents/liam_workfolder/my_project/News_dashboard/.env
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/env node server.js
+Restart=always
+RestartSec=5
+TimeoutStopSec=20
+StandardOutput=append:/home/cori/Documents/liam_workfolder/my_project/News_dashboard/logs/api-service.log
+StandardError=append:/home/cori/Documents/liam_workfolder/my_project/News_dashboard/logs/api-service.log
+
+[Install]
+WantedBy=multi-user.target

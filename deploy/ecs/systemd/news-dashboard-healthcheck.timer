@@ -1,0 +1,11 @@
+[Unit]
+Description=Run News Dashboard API Healthcheck Every Minute
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=1min
+Unit=news-dashboard-healthcheck.service
+Persistent=true
+
+[Install]
+WantedBy=timers.target

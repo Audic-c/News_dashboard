@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:github.com)",
+      "Bash(npm install:*)",
+      "WebSearch",
+      "WebFetch(domain:www.economist.com)",
+      "WebFetch(domain:news.google.com)"
+    ]
+  }
+}

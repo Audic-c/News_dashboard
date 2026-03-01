@@ -1,0 +1,129 @@
+# Glance Dashboard Configuration
+# Premium News Aggregator
+
+server:
+  port: 8080
+
+theme:
+  background-color: 25 25 35
+  contrast-multiplier: 1.2
+  primary-color: 100 180 255
+  positive-color: 100 200 100
+  negative-color: 255 100 100
+
+pages:
+  - name: News Dashboard
+    columns:
+      # Left Column - Business & Finance
+      - size: small
+        widgets:
+          - type: rss
+            title: The Economist
+            style: detailed-list
+            feeds:
+              - url: https://www.economist.com/international/rss.xml
+                title: The Economist
+            limit: 8
+            collapse-after: 5
+
+          - type: rss
+            title: Financial Times
+            style: detailed-list
+            feeds:
+              - url: https://www.ft.com/rss/
+                title: Financial Times
+            limit: 8
+            collapse-after: 5
+
+          - type: rss
+            title: Wall Street Journal
+            style: detailed-list
+            feeds:
+              - url: https://feeds.wsjonline.com/wsj/xml/rss/3_7014.xml
+                title: WSJ
+            limit: 8
+            collapse-after: 5
+
+      # Middle Column - Breaking News
+      - size: small
+        widgets:
+          - type: rss
+            title: Bloomberg Markets
+            style: detailed-list
+            feeds:
+              - url: https://feeds.bloomberg.com/markets/news.rss
+                title: Bloomberg
+            limit: 8
+            collapse-after: 5
+
+          - type: rss
+            title: Reuters Top News
+            style: detailed-list
+            feeds:
+              # Reuters停止了官方RSS，使用Google News作为替代
+              - url: https://news.google.com/rss/search?q=when:24h+allinurl:reuters.com&ceid=US:en&hl=en-US&gl=US
+                title: Reuters via Google News
+            limit: 8
+            collapse-after: 5
+
+          - type: rss
+            title: New York Times
+            style: detailed-list
+            feeds:
+              - url: https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml
+                title: NYT
+            limit: 8
+            collapse-after: 5
+
+      # Right Column - Tech & Culture
+      - size: small
+        widgets:
+          - type: rss
+            title: MIT Technology Review
+            style: detailed-list
+            feeds:
+              - url: https://www.technologyreview.com/feed/
+                title: MIT Tech Review
+            limit: 8
+            collapse-after: 5
+
+          - type: rss
+            title: The New Yorker
+            style: detailed-list
+            feeds:
+              - url: https://www.newyorker.com/feed/news
+                title: The New Yorker
+            limit: 8
+            collapse-after: 5
+
+          - type: rss
+            title: South China Morning Post
+            style: detailed-list
+            feeds:
+              - url: https://www.scmp.com/rss/
+                title: SCMP
+            limit: 8
+            collapse-after: 5
+
+  # Optional: Combined view page
+  - name: All News
+    columns:
+      - size: full
+        widgets:
+          - type: rss
+            title: All Premium Sources
+            style: horizontal-cards
+            feeds:
+              - url: https://www.economist.com/international/rss.xml
+                title: Economist
+              - url: https://www.ft.com/rss/
+                title: FT
+              - url: https://feeds.bloomberg.com/markets/news.rss
+                title: Bloomberg
+              - url: https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml
+                title: NYT
+              - url: https://news.google.com/rss/search?q=when:24h+allinurl:reuters.com&ceid=US:en&hl=en-US&gl=US
+                title: Reuters
+              - url: https://www.technologyreview.com/feed/
+                title: MIT Tech
+            limit: 20

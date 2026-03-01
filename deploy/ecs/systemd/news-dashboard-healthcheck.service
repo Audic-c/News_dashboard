@@ -1,0 +1,13 @@
+[Unit]
+Description=News Dashboard API Healthcheck
+After=network-online.target news-dashboard-api.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=cori
+WorkingDirectory=/home/cori/Documents/liam_workfolder/my_project/News_dashboard
+EnvironmentFile=-/home/cori/Documents/liam_workfolder/my_project/News_dashboard/.env
+ExecStart=/usr/bin/env bash -lc 'curl -fsS -H "X-API-Key: ${NEWS_API_KEY}" http://127.0.0.1:${PORT:-3000}/api/health >/dev/null'
+StandardOutput=append:/home/cori/Documents/liam_workfolder/my_project/News_dashboard/logs/healthcheck.log
+StandardError=append:/home/cori/Documents/liam_workfolder/my_project/News_dashboard/logs/healthcheck.log

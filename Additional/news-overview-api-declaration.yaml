@@ -1,0 +1,113 @@
+openapi: 3.1.0
+info:
+  title: News Overview Automation API
+  version: 1.0.0
+  description: |
+    调用声明：用于其他工具接入 News Overview 的最新 JSON、HTML、长图产物。
+servers:
+  - url: http://localhost:3000
+paths:
+  /api/news-overview:
+    get:
+      summary: 获取最新简报 JSON
+      operationId: getNewsOverviewJson
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  generatedAt:
+                    type: string
+                    format: date-time
+                  timeZone:
+                    type: string
+                  title:
+                    type: string
+                  briefLines:
+                    type: array
+                    items:
+                      type: string
+                  sources:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        source:
+                          type: string
+                        items:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              title:
+                                type: string
+                              link:
+                                type: string
+                              date:
+                                type: string
+                                format: date-time
+        '404':
+          description: 产物不存在
+        '500':
+          description: 服务端错误
+
+  /api/news-overview-html:
+    get:
+      summary: 获取最新渲染 HTML
+      operationId: getNewsOverviewHtml
+      responses:
+        '200':
+          description: OK
+          content:
+            text/html:
+              schema:
+                type: string
+        '404':
+          description: HTML 产物不存在（需开启 NEWS_OVERVIEW_RENDER_HTML）
+        '500':
+          description: 服务端错误
+
+  /api/news-overview-image:
+    get:
+      summary: 获取最新渲染长图
+      operationId: getNewsOverviewImage
+      responses:
+        '200':
+          description: OK
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: 图片产物不存在（需开启 NEWS_OVERVIEW_RENDER_IMAGE）
+        '500':
+          description: 服务端错误
+
+  /api/send-brief:
+    post:
+      summary: 触发一次简报生成
+      operationId: triggerNewsOverviewBuild
+      responses:
+        '200':
+          description: 触发成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  output:
+                    type: string
+        '500':
+          description: 触发失败
+
+components: {}

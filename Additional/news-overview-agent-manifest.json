@@ -1,0 +1,90 @@
+{
+  "name": "news-overview-automation",
+  "version": "1.0.0",
+  "baseUrl": "http://localhost:3000",
+  "auth": {
+    "type": "none"
+  },
+  "defaults": {
+    "timeoutMs": 120000,
+    "retry": 1
+  },
+  "endpoints": [
+    {
+      "id": "getNewsOverviewJson",
+      "method": "GET",
+      "path": "/api/news-overview",
+      "accept": "application/json",
+      "returns": {
+        "type": "json",
+        "shape": {
+          "generatedAt": "string(date-time)",
+          "timeZone": "string",
+          "title": "string",
+          "briefLines": "string[]",
+          "sources": "{source:string,items:{title:string,link:string,date:string}[]}[]"
+        }
+      },
+      "on404": "treat_as_not_ready",
+      "on500": "retry_once"
+    },
+    {
+      "id": "getNewsOverviewHtml",
+      "method": "GET",
+      "path": "/api/news-overview-html",
+      "accept": "text/html",
+      "returns": {
+        "type": "text"
+      },
+      "on404": "run_trigger_then_retry",
+      "on500": "retry_once"
+    },
+    {
+      "id": "getNewsOverviewImage",
+      "method": "GET",
+      "path": "/api/news-overview-image",
+      "accept": "image/png,image/jpeg",
+      "returns": {
+        "type": "binary",
+        "saveAs": "news-overview.latest"
+      },
+      "on404": "run_trigger_then_retry",
+      "on500": "retry_once"
+    },
+    {
+      "id": "triggerNewsOverviewBuild",
+      "method": "POST",
+      "path": "/api/send-brief",
+      "accept": "application/json",
+      "returns": {
+        "type": "json",
+        "shape": {
+          "status": "string",
+          "output": "string"
+        }
+      },
+      "on500": "fail"
+    }
+  ],
+  "pipelines": [
+    {
+      "id": "buildThenFetchImage",
+      "steps": [
+        "triggerNewsOverviewBuild",
+        "getNewsOverviewImage"
+      ]
+    },
+    {
+      "id": "fetchAllArtifacts",
+      "steps": [
+        "getNewsOverviewJson",
+        "getNewsOverviewHtml",
+        "getNewsOverviewImage"
+      ]
+    }
+  ],
+  "notes": [
+    "If image endpoint returns 404, set NEWS_OVERVIEW_RENDER_IMAGE=1 in .env.",
+    "If HTML endpoint returns 404, set NEWS_OVERVIEW_RENDER_HTML=1 in .env."
+  ]
+}

@@ -1,0 +1,10 @@
+[Unit]
+Description=Run News Dashboard Pipeline Daily
+
+[Timer]
+OnCalendar=*-*-* 08:10:00
+Persistent=true
+Unit=news-dashboard-pipeline.service
+
+[Install]
+WantedBy=timers.target

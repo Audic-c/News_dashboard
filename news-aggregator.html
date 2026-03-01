@@ -1,0 +1,2023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Newsroom Live</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: #1e293b;
+        }
+
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            padding: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            backdrop-filter: blur(10px);
+            background: rgba(102, 126, 234, 0.2);
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            min-height: 64px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            margin-left: auto;
+            margin-right: 32px;
+        }
+
+        .top-nav a {
+            text-decoration: none;
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .top-nav a.active,
+        .top-nav a:hover {
+            background: rgba(255,255,255,0.2);
+            border-color: rgba(255,255,255,0.6);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .eyebrow {
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.7);
+            font-weight: 600;
+        }
+
+        .meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            color: rgba(255,255,255,0.85);
+            font-size: 0.95rem;
+            justify-content: center;
+        }
+
+        .header h1 {
+            font-size: 2.6rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.05rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .control-btn:hover {
+            background: rgba(255,255,255,0.3);
+            border-color: rgba(255,255,255,0.5);
+            transform: translateY(-2px);
+        }
+
+        .lang-toggle {
+            display: inline-flex;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .lang-toggle button {
+            border: none;
+            background: transparent;
+            color: white;
+            padding: 8px 14px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .lang-toggle button.active {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .news-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1rem;
+        }
+
+        .news-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .news-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .news-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.15);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.8rem;
+        }
+        .card-actions {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+        }
+        .more-btn {
+            border: 0;
+            background: transparent;
+            color: #4f46e5;
+            font-size: 0.74rem;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+        }
+        .more-btn:hover {
+            text-decoration: underline;
+        }
+        .detail-back {
+            margin-bottom: 0.8rem;
+        }
+        .detail-back .control-btn {
+            height: 32px;
+            padding: 0 12px;
+            font-size: 0.75rem;
+        }
+
+        .source-info {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .source-logo {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.8rem;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .source-details h3 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.1rem;
+        }
+
+        .source-details .category {
+            font-size: 0.7rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #10b981;
+            animation: pulse 2s infinite;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .status-indicator.loading {
+            background: #f59e0b;
+            animation: pulse 1s infinite;
+        }
+
+        .status-indicator.error {
+            background: #ef4444;
+            animation: none;
+        }
+
+        .status-indicator.offline {
+            background: #6b7280;
+            animation: none;
+        }
+
+        .status-tooltip {
+            position: absolute;
+            bottom: 20px;
+            right: 0;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .status-indicator:hover .status-tooltip {
+            opacity: 1;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .loading-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .loading-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e5e7eb;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        .connection-status {
+            background: rgba(255, 255, 255, 0.2);
+            height: 34px;
+            padding: 0 10px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            backdrop-filter: blur(10px);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            line-height: 1.2;
+            font-weight: 600;
+            justify-content: center;
+        }
+
+        .status-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+
+        .status-icon .slash {
+            opacity: 0;
+        }
+
+        .connection-status.offline .slash {
+            opacity: 1;
+        }
+
+        .connection-status.online {
+            background: rgba(16, 185, 129, 0.18);
+            border-color: rgba(16, 185, 129, 0.4);
+        }
+
+        .connection-status.offline {
+            background: rgba(239, 68, 68, 0.18);
+            border-color: rgba(239, 68, 68, 0.4);
+        }
+
+        .connection-status.loading {
+            background: rgba(245, 158, 11, 0.18);
+            border-color: rgba(245, 158, 11, 0.4);
+        }
+
+        .news-items {
+            space-y: 1rem;
+        }
+
+        .news-item {
+            padding: 0.35rem 0.5rem;
+            border-radius: 6px;
+            background: #f8fafc;
+            margin-bottom: 0.35rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 2px solid transparent;
+        }
+
+        .news-item:hover {
+            background: #e2e8f0;
+            border-left-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .news-item-title {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #1e293b;
+            margin-bottom: 0.15rem;
+            line-height: 1.2;
+        }
+
+        .news-item-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.6rem;
+            color: #64748b;
+        }
+
+        .news-item-time {
+            display: flex;
+            align-items: center;
+            gap: 0.2rem;
+        }
+
+        .news-item-tag {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 0.1rem 0.4rem;
+            border-radius: 10px;
+            font-size: 0.55rem;
+            font-weight: 500;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #64748b;
+        }
+
+        .loading i {
+            font-size: 2rem;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .error {
+            text-align: center;
+            padding: 2rem;
+            background: #fef2f2;
+            border-radius: 12px;
+            color: #dc2626;
+            margin: 1rem 0;
+        }
+
+        .last-updated {
+            text-align: center;
+            color: rgba(255,255,255,0.8);
+            margin-top: 2rem;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .news-dashboard {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .news-card {
+                padding: 0.8rem;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            .card-actions {
+                gap: 0.35rem;
+            }
+            .more-btn {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="lang-toggle" role="group" aria-label="Language Toggle">
+            <button id="lang-en" class="active" type="button">EN</button>
+            <button id="lang-zh" type="button">中文</button>
+        </div>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="news-overview.html">News Overview</a>
+            <a class="active" href="news-aggregator.html">Newsroom Live</a>
+        </div>
+        <div class="connection-status online" id="connectionStatus" aria-live="polite">
+            <span class="status-icon fa-stack" aria-hidden="true">
+                <i class="fas fa-wifi fa-stack-1x"></i>
+                <i class="fas fa-slash fa-stack-1x slash"></i>
+            </span>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="header">
+            <div class="eyebrow">Newsroom Briefing</div>
+            <h1><i class="fas fa-newspaper"></i> Newsroom Live</h1>
+            <p>Real-time briefings across markets, policy, and world news</p>
+            <div class="meta">
+                <span id="lastUpdatedMeta">Updated: --</span>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn" onclick="refreshAllNews()">
+                <i class="fas fa-sync-alt"></i> Show Latest 8
+            </button>
+            <button class="control-btn" onclick="showAllSources()">
+                <i class="fas fa-th-large"></i> Show All Sources
+            </button>
+            <button class="control-btn" onclick="toggleAutoRefresh()">
+                <i class="fas fa-clock"></i> <span id="autoRefreshStatus">Auto-refresh: ON</span>
+            </button>
+            <button class="control-btn" onclick="clearCache()">
+                <i class="fas fa-trash"></i> Clear Cache
+            </button>
+            <button class="control-btn" onclick="exportNews()">
+                <i class="fas fa-download"></i> Export
+            </button>
+        </div>
+
+        <div class="news-dashboard" id="newsDashboard">
+            <!-- News cards will be populated here -->
+        </div>
+
+        <div class="last-updated" id="lastUpdated">
+            Last updated: Just now
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p id="loadingText">Loading news...</p>
+        </div>
+    </div>
+
+    <script>
+        // Enhanced news sources with RSS feeds and multiple API endpoints
+        const newsSources = [
+            {
+                id: 'economist',
+                name: 'The Economist',
+                url: 'https://www.economist.com/',
+                logo: 'EC',
+                color: '#d90429',
+                rssUrl: 'https://www.economist.com/international/rss.xml',
+                category: 'Business & Politics',
+                apiEndpoints: [
+                    'https://api.rss2json.com/v1/api.json?rss_url=https://www.economist.com/international/rss.xml',
+                    'https://api.rss2json.com/v1/api.json?rss_url=https://www.economist.com/business/rss.xml',
+                    // Google News作为后备方案
+                    'https://api.rss2json.com/v1/api.json?rss_url=https://news.google.com/rss/search?q=when:24h+allinurl:economist.com',
+                    'https://r2rss.org/api?url=https://www.economist.com/international/rss.xml'
+                ]
+            },
+            {
+                id: 'ft',
+                name: 'Financial Times',
+                url: 'https://www.ft.com/',
+                logo: 'FT',
+                color: '#fff1e5',
+                textColor: '#333',
+                rssUrl: 'https://www.ft.com/rss/',
+                category: 'Finance & Markets',
+                apiEndpoints: [
+                    'https://api.rss2json.com/v1/api.json?rss_url=https://www.ft.com/rss/',
+                    'https://r2rss.org/api?url=https://www.ft.com/rss/',
+                    'https://rss2json.com/api.json?rss_url=https://www.ft.com/rss/'
+                ]
+            },
+            {
+                id: 'bloomberg',
+                name: 'Bloomberg',
+                url: 'https://www.bloomberg.com/',
+                logo: 'BG',
+                color: '#0057b8',
+                rssUrl: 'https://feeds.bloomberg.com/markets/news.rss',
+                category: 'Business & Markets',
+                apiEndpoints: [
+                    'https://api.rss2json.com/v1/api.json?rss_url=https://feeds.bloomberg.com/markets/news.rss',
+                    'https://r2rss.org/api?url=https://feeds.bloomberg.com/markets/news.rss',
+                    'https://rss2json.com/api.json?rss_url=https://feeds.bloomberg.com/markets/news.rss'
+                ]
+            },
+            {
+                id: 'nyt',
+                name: 'The New York Times',
+                url: 'https://www.nytimes.com/',
+                logo: 'NYT',
+                color: '#000000',
+                rssUrl: 'https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml',
+                category: 'General News',
+                apiEndpoints: [
+                    'https://api.rss2json.com/v1/api.json?rss_url=https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml',
+                    'https://r2rss.org/api?url=https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml',
+                    'https://rss2json.com/api.json?rss_url=https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml'
+                ]
+            },
+            {
+                id: 'bbc',
+                name: 'BBC News',
+                url: 'https://www.bbc.com/news',
+                logo: 'BBC',
+                color: '#bb1919',
+                rssUrl: 'http://newsrss.bbc.co.uk/rss/newsonline_uk_edition/front_page/rss.xml',
+                category: 'World News',
+                apiEndpoints: [
+                    'https://api.rss2json.com/v1/api.json?rss_url=http://newsrss.bbc.co.uk/rss/newsonline_uk_edition/front_page/rss.xml',
+                    'https://r2rss.org/api?url=http://newsrss.bbc.co.uk/rss/newsonline_uk_edition/front_page/rss.xml',
+                    'https://rss2json.com/api.json?rss_url=http://newsrss.bbc.co.uk/rss/newsonline_uk_edition/front_page/rss.xml'
+                ]
+            },
+            {
+                id: 'reuters',
+                name: 'Reuters',
+                url: 'https://www.reuters.com/',
+                logo: 'RE',
+                color: '#ff8000',
+                // Reuters停止了官方RSS，使用Google News作为替代
+                rssUrl: 'https://news.google.com/rss/search?q=when:24h+allinurl:reuters.com&ceid=US:en&hl=en-US&gl=US',
+                category: 'World News',
+                isGoogleNewsProxy: true,
+                apiEndpoints: [
+                    'https://api.rss2json.com/v1/api.json?rss_url=https://news.google.com/rss/search?q=when:24h+allinurl:reuters.com',
+                    'https://r2rss.org/api?url=https://news.google.com/rss/search?q=site:reuters.com'
+                ]
+            },
+            {
+                id: 'scmp',
+                name: 'South China Morning Post',
+                url: 'https://www.scmp.com/',
+                logo: 'SC',
+                color: '#1e3a8a',
+                rssUrl: 'https://www.scmp.com/rss/',
+                category: 'Asia News',
+                apiEndpoints: [
+                    'https://api.rss2json.com/v1/api.json?rss_url=https://www.scmp.com/rss/',
+                    'https://r2rss.org/api?url=https://www.scmp.com/rss/',
+                    'https://rss2json.com/api.json?rss_url=https://www.scmp.com/rss/'
+                ]
+            },
+            {
+                id: 'mit-tr',
+                name: 'MIT Technology Review',
+                url: 'https://www.technologyreview.com/',
+                logo: 'TR',
+                color: '#00b894',
+                rssUrl: 'https://www.technologyreview.com/feed/',
+                category: 'Technology',
+                apiEndpoints: [
+                    'https://api.rss2json.com/v1/api.json?rss_url=https://www.technologyreview.com/feed/',
+                    'https://r2rss.org/api?url=https://www.technologyreview.com/feed/',
+                    'https://rss2json.com/api.json?rss_url=https://www.technologyreview.com/feed/'
+                ]
+            },
+            {
+                id: 'newyorker',
+                name: 'The New Yorker',
+                url: 'https://www.newyorker.com/',
+                logo: 'NY',
+                color: '#ff6b6b',
+                rssUrl: 'https://www.newyorker.com/feed/news',
+                category: 'Culture & Arts',
+                apiEndpoints: [
+                    'https://api.rss2json.com/v1/api.json?rss_url=https://www.newyorker.com/feed/news',
+                    'https://r2rss.org/api?url=https://www.newyorker.com/feed/news',
+                    'https://rss2json.com/api.json?rss_url=https://www.newyorker.com/feed/news'
+                ]
+            },
+            {
+                id: 'guardian',
+                name: 'The Guardian',
+                url: 'https://www.theguardian.com/international',
+                logo: 'GU',
+                color: '#052962',
+                rssUrl: 'https://www.theguardian.com/international/rss',
+                category: 'World & Opinion',
+                apiEndpoints: [
+                    'https://api.rss2json.com/v1/api.json?rss_url=https://www.theguardian.com/international/rss',
+                    'https://r2rss.org/api?url=https://www.theguardian.com/international/rss',
+                    'https://rss2json.com/api.json?rss_url=https://www.theguardian.com/international/rss'
+                ]
+            },
+            {
+                id: 'feishu',
+                name: '飞书收藏',
+                url: 'https://ncnr408dbok6.feishu.cn/base/R71JbhzOeaNzbbskmZrcxXFyn5f',
+                logo: 'FS',
+                color: '#3370FF',
+                rssUrl: '',
+                category: 'My Collection',
+                apiEndpoints: []
+            },
+            {
+                id: 'other',
+                name: 'Other (Public API)',
+                url: '#',
+                logo: 'OT',
+                color: '#6b7280',
+                rssUrl: '',
+                category: 'Cross-Source',
+                apiEndpoints: [
+                    '/api/other'
+                ]
+            },
+            {
+                id: 'wsj',
+                name: 'The Wall Street Journal',
+                url: 'https://www.wsj.com/',
+                logo: 'WSJ',
+                color: '#003366',
+                rssUrl: 'https://feeds.wsjonline.com/wsj/xml/rss/3_7014.xml',
+                category: 'Business & Finance',
+                apiEndpoints: [
+                    'https://api.rss2json.com/v1/api.json?rss_url=https://feeds.wsjonline.com/wsj/xml/rss/3_7014.xml',
+                    'https://r2rss.org/api?url=https://feeds.wsjonline.com/wsj/xml/rss/3_7014.xml',
+                    'https://rss2json.com/api.json?rss_url=https://feeds.wsjonline.com/wsj/xml/rss/3_7014.xml'
+                ]
+            }
+        ];
+
+        // Sample data for demonstration (fallback when RSS fails)
+        const sampleNewsData = {
+            'economist': [
+                { title: 'Global economic recovery shows signs of acceleration', time: '15 minutes ago', category: 'Economy', link: 'https://www.economist.com/' },
+                { title: 'Technology sector drives innovation in emerging markets', time: '1 hour ago', category: 'Technology', link: 'https://www.economist.com/' },
+                { title: 'Climate policies reshape energy landscape', time: '3 hours ago', category: 'Environment', link: 'https://www.economist.com/' },
+                { title: 'Central banks navigate inflation challenges', time: '5 hours ago', category: 'Finance', link: 'https://www.economist.com/' },
+                { title: 'Emerging markets demonstrate resilience', time: '7 hours ago', category: 'Markets', link: 'https://www.economist.com/' },
+                { title: 'Trade tensions reshape supply chains', time: '9 hours ago', category: 'Trade', link: 'https://www.economist.com/' },
+                { title: 'Healthcare innovation accelerates globally', time: '11 hours ago', category: 'Health', link: 'https://www.economist.com/' },
+                { title: 'Energy transition gains momentum', time: '13 hours ago', category: 'Energy', link: 'https://www.economist.com/' },
+                { title: 'Labor markets remain tight worldwide', time: '15 hours ago', category: 'Labor', link: 'https://www.economist.com/' },
+                { title: 'Digital currencies challenge banking', time: '17 hours ago', category: 'Crypto', link: 'https://www.economist.com/' }
+            ],
+            'ft': [
+                { title: 'Central banks signal policy shifts ahead', time: '30 minutes ago', category: 'Central Banking', link: 'https://www.ft.com/' },
+                { title: 'European markets respond to regulatory changes', time: '2 hours ago', category: 'Markets', link: 'https://www.ft.com/' },
+                { title: 'Sustainable finance initiatives gain traction', time: '4 hours ago', category: 'ESG', link: 'https://www.ft.com/' },
+                { title: 'Private equity deals surge in Q4', time: '6 hours ago', category: 'PE', link: 'https://www.ft.com/' },
+                { title: 'Bond yields climb on inflation data', time: '8 hours ago', category: 'Bonds', link: 'https://www.ft.com/' },
+                { title: 'UK economy shows recovery signs', time: '10 hours ago', category: 'UK', link: 'https://www.ft.com/' },
+                { title: 'Hedge funds post strong returns', time: '12 hours ago', category: 'Funds', link: 'https://www.ft.com/' },
+                { title: 'Corporate debt levels raise concerns', time: '14 hours ago', category: 'Debt', link: 'https://www.ft.com/' },
+                { title: 'ESG investing reaches milestone', time: '16 hours ago', category: 'ESG', link: 'https://www.ft.com/' },
+                { title: 'Merger activity picks up pace', time: '18 hours ago', category: 'M&A', link: 'https://www.ft.com/' }
+            ],
+            'bloomberg': [
+                { title: 'AI stocks surge on breakthrough announcements', time: '20 minutes ago', category: 'AI & Tech', link: 'https://www.bloomberg.com/' },
+                { title: 'Energy sector transformation accelerates', time: '1 hour ago', category: 'Energy', link: 'https://www.bloomberg.com/' },
+                { title: 'Private equity deals reach record levels', time: '3 hours ago', category: 'Private Equity', link: 'https://www.bloomberg.com/' },
+                { title: 'Gold prices hit record high', time: '5 hours ago', category: 'Commodities', link: 'https://www.bloomberg.com/' },
+                { title: 'Auto industry shifts to electric', time: '7 hours ago', category: 'Auto', link: 'https://www.bloomberg.com/' },
+                { title: 'Real estate shows mixed signals', time: '9 hours ago', category: 'Property', link: 'https://www.bloomberg.com/' },
+                { title: 'Retail sales exceed expectations', time: '11 hours ago', category: 'Retail', link: 'https://www.bloomberg.com/' },
+                { title: 'Banking profits surge in Q3', time: '13 hours ago', category: 'Banking', link: 'https://www.bloomberg.com/' },
+                { title: 'Semiconductor shortage eases', time: '15 hours ago', category: 'Chips', link: 'https://www.bloomberg.com/' },
+                { title: 'IPO market heats up', time: '17 hours ago', category: 'IPO', link: 'https://www.bloomberg.com/' }
+            ],
+            'nyt': [
+                { title: 'Breaking developments in international diplomacy', time: '10 minutes ago', category: 'World', link: 'https://www.nytimes.com/' },
+                { title: 'Cultural institutions announce major initiatives', time: '2 hours ago', category: 'Culture', link: 'https://www.nytimes.com/' },
+                { title: 'Scientific breakthrough promises medical advances', time: '4 hours ago', category: 'Science', link: 'https://www.nytimes.com/' },
+                { title: 'Education reform bill advances', time: '6 hours ago', category: 'Education', link: 'https://www.nytimes.com/' },
+                { title: 'Healthcare costs continue to rise', time: '8 hours ago', category: 'Health', link: 'https://www.nytimes.com/' },
+                { title: 'Immigration debate intensifies', time: '10 hours ago', category: 'Immigration', link: 'https://www.nytimes.com/' },
+                { title: 'Supreme Court hears landmark case', time: '12 hours ago', category: 'Legal', link: 'https://www.nytimes.com/' },
+                { title: 'Infrastructure bill gains support', time: '14 hours ago', category: 'Policy', link: 'https://www.nytimes.com/' },
+                { title: 'Social media regulation proposed', time: '16 hours ago', category: 'Tech', link: 'https://www.nytimes.com/' },
+                { title: 'Housing affordability crisis deepens', time: '18 hours ago', category: 'Housing', link: 'https://www.nytimes.com/' }
+            ],
+            'bbc': [
+                { title: 'Global leaders meet to address economic outlook', time: '12 minutes ago', category: 'World', link: 'https://www.bbc.com/news' },
+                { title: 'Conflict talks resume amid renewed diplomatic efforts', time: '1 hour ago', category: 'Politics', link: 'https://www.bbc.com/news' },
+                { title: 'Markets react to central bank guidance', time: '3 hours ago', category: 'Business', link: 'https://www.bbc.com/news' },
+                { title: 'Public health agency issues updated guidance', time: '5 hours ago', category: 'Health', link: 'https://www.bbc.com/news' },
+                { title: 'Climate summit sets new emissions targets', time: '7 hours ago', category: 'Climate', link: 'https://www.bbc.com/news' },
+                { title: 'Tech regulation bill heads to final vote', time: '9 hours ago', category: 'Technology', link: 'https://www.bbc.com/news' },
+                { title: 'Energy prices ease after supply announcement', time: '11 hours ago', category: 'Energy', link: 'https://www.bbc.com/news' },
+                { title: 'Infrastructure upgrades announced for transit hubs', time: '13 hours ago', category: 'Infrastructure', link: 'https://www.bbc.com/news' },
+                { title: 'Education reforms focus on digital skills', time: '15 hours ago', category: 'Education', link: 'https://www.bbc.com/news' },
+                { title: 'Wildlife protection funding expanded', time: '17 hours ago', category: 'Environment', link: 'https://www.bbc.com/news' }
+            ],
+            'reuters': [
+                { title: 'Global leaders coordinate crisis response', time: '25 minutes ago', category: 'World', link: 'https://www.reuters.com/' },
+                { title: 'Trade negotiations show positive momentum', time: '1 hour ago', category: 'Trade', link: 'https://www.reuters.com/' },
+                { title: 'Humanitarian efforts expand in conflict zones', time: '3 hours ago', category: 'Humanitarian', link: 'https://www.reuters.com/' },
+                { title: 'UN Security Council convenes', time: '5 hours ago', category: 'UN', link: 'https://www.reuters.com/' },
+                { title: 'Diplomatic tensions ease in region', time: '7 hours ago', category: 'Diplomacy', link: 'https://www.reuters.com/' },
+                { title: 'Humanitarian aid reaches crisis zone', time: '9 hours ago', category: 'Aid', link: 'https://www.reuters.com/' },
+                { title: 'Elections scheduled in key nations', time: '11 hours ago', category: 'Elections', link: 'https://www.reuters.com/' },
+                { title: 'Military exercises begin in Pacific', time: '13 hours ago', category: 'Defense', link: 'https://www.reuters.com/' },
+                { title: 'Sanctions debate continues', time: '15 hours ago', category: 'Policy', link: 'https://www.reuters.com/' },
+                { title: 'Refugee crisis demands attention', time: '17 hours ago', category: 'Refugees', link: 'https://www.reuters.com/' }
+            ],
+            'scmp': [
+                { title: 'Asian tech companies lead innovation drive', time: '35 minutes ago', category: 'Technology', link: 'https://www.scmp.com/' },
+                { title: 'Regional economic integration deepens', time: '2 hours ago', category: 'Regional', link: 'https://www.scmp.com/' },
+                { title: 'Sustainable development goals advance', time: '5 hours ago', category: 'Development', link: 'https://www.scmp.com/' },
+                { title: 'Hong Kong financial sector grows', time: '7 hours ago', category: 'Finance', link: 'https://www.scmp.com/' },
+                { title: 'China manufacturing data released', time: '9 hours ago', category: 'Economy', link: 'https://www.scmp.com/' },
+                { title: 'Belt and Road projects advance', time: '11 hours ago', category: 'Trade', link: 'https://www.scmp.com/' },
+                { title: 'Property market stabilizes', time: '13 hours ago', category: 'Property', link: 'https://www.scmp.com/' },
+                { title: 'Tech giants face new regulations', time: '15 hours ago', category: 'Regulation', link: 'https://www.scmp.com/' },
+                { title: 'Tourism sector rebounds strongly', time: '17 hours ago', category: 'Tourism', link: 'https://www.scmp.com/' },
+                { title: 'Green energy investments surge', time: '19 hours ago', category: 'Energy', link: 'https://www.scmp.com/' }
+            ],
+            'mit-tr': [
+                { title: 'Quantum computing achieves new milestone', time: '40 minutes ago', category: 'Quantum', link: 'https://www.technologyreview.com/' },
+                { title: 'Biotechnology breakthrough in gene therapy', time: '2 hours ago', category: 'Biotech', link: 'https://www.technologyreview.com/' },
+                { title: 'Renewable energy efficiency reaches new highs', time: '6 hours ago', category: 'Clean Tech', link: 'https://www.technologyreview.com/' },
+                { title: 'Robotics advances transform industry', time: '8 hours ago', category: 'Robotics', link: 'https://www.technologyreview.com/' },
+                { title: 'AI ethics debate intensifies', time: '10 hours ago', category: 'AI', link: 'https://www.technologyreview.com/' },
+                { title: 'Space exploration reaches new frontier', time: '12 hours ago', category: 'Space', link: 'https://www.technologyreview.com/' },
+                { title: 'Cybersecurity threats evolve', time: '14 hours ago', category: 'Security', link: 'https://www.technologyreview.com/' },
+                { title: '5G rollout expands globally', time: '16 hours ago', category: '5G', link: 'https://www.technologyreview.com/' },
+                { title: 'Autonomous vehicles near deployment', time: '18 hours ago', category: 'Auto', link: 'https://www.technologyreview.com/' },
+                { title: 'Blockchain finds enterprise uses', time: '20 hours ago', category: 'Blockchain', link: 'https://www.technologyreview.com/' }
+            ],
+            'newyorker': [
+                { title: 'Literary voices explore contemporary themes', time: '50 minutes ago', category: 'Literature', link: 'https://www.newyorker.com/' },
+                { title: 'Art exhibition challenges traditional boundaries', time: '3 hours ago', category: 'Art', link: 'https://www.newyorker.com/' },
+                { title: 'Cultural commentary on digital age', time: '5 hours ago', category: 'Culture', link: 'https://www.newyorker.com/' },
+                { title: 'Profile of influential artist released', time: '7 hours ago', category: 'Profile', link: 'https://www.newyorker.com/' },
+                { title: 'Theater review: Broadway sensation', time: '9 hours ago', category: 'Theater', link: 'https://www.newyorker.com/' },
+                { title: 'Essay on political discourse', time: '11 hours ago', category: 'Politics', link: 'https://www.newyorker.com/' },
+                { title: 'Book review: Acclaimed new novel', time: '13 hours ago', category: 'Books', link: 'https://www.newyorker.com/' },
+                { title: 'Music scene evolution explored', time: '15 hours ago', category: 'Music', link: 'https://www.newyorker.com/' },
+                { title: 'Documentary captures urban life', time: '17 hours ago', category: 'Film', link: 'https://www.newyorker.com/' },
+                { title: 'Architecture of the future', time: '19 hours ago', category: 'Design', link: 'https://www.newyorker.com/' }
+            ],
+            'guardian': [
+                { title: 'International negotiations advance on climate targets', time: '20 minutes ago', category: 'World', link: 'https://www.theguardian.com/international' },
+                { title: 'Economic policy shifts reshape markets', time: '2 hours ago', category: 'Business', link: 'https://www.theguardian.com/international' },
+                { title: 'Science community debates new research standards', time: '4 hours ago', category: 'Science', link: 'https://www.theguardian.com/international' },
+                { title: 'Human rights report highlights emerging risks', time: '6 hours ago', category: 'Human Rights', link: 'https://www.theguardian.com/international' },
+                { title: 'Technology leaders respond to regulation proposals', time: '8 hours ago', category: 'Technology', link: 'https://www.theguardian.com/international' },
+                { title: 'Global health systems prepare for reforms', time: '10 hours ago', category: 'Health', link: 'https://www.theguardian.com/international' },
+                { title: 'Arts institutions launch new cultural programs', time: '12 hours ago', category: 'Culture', link: 'https://www.theguardian.com/international' },
+                { title: 'Energy transition investments accelerate', time: '14 hours ago', category: 'Energy', link: 'https://www.theguardian.com/international' },
+                { title: 'Education policy focuses on equity', time: '16 hours ago', category: 'Education', link: 'https://www.theguardian.com/international' },
+                { title: 'Cities adopt resilient infrastructure plans', time: '18 hours ago', category: 'Policy', link: 'https://www.theguardian.com/international' }
+            ],
+            'other': [
+                { title: 'Public API: Cross-source headline digest', time: '15 minutes ago', category: 'Cross-Source', link: '#' },
+                { title: 'Public API: Regional market snapshots', time: '2 hours ago', category: 'Markets', link: '#' },
+                { title: 'Public API: Policy signals and commentary', time: '4 hours ago', category: 'Policy', link: '#' },
+                { title: 'Public API: Tech and innovation watchlist', time: '6 hours ago', category: 'Technology', link: '#' },
+                { title: 'Public API: Global risk indicators', time: '8 hours ago', category: 'Risk', link: '#' },
+                { title: 'Public API: Energy and commodities tracker', time: '10 hours ago', category: 'Energy', link: '#' },
+                { title: 'Public API: Macro data releases', time: '12 hours ago', category: 'Macro', link: '#' },
+                { title: 'Public API: Corporate filings monitor', time: '14 hours ago', category: 'Corporate', link: '#' },
+                { title: 'Public API: Geopolitical briefing', time: '16 hours ago', category: 'Geopolitics', link: '#' },
+                { title: 'Public API: Market sentiment recap', time: '18 hours ago', category: 'Sentiment', link: '#' }
+            ],
+            'wsj': [
+                { title: 'Federal Reserve signals potential rate changes ahead', time: '15 minutes ago', category: 'Finance', link: 'https://www.wsj.com/' },
+                { title: 'Corporate earnings exceed analyst expectations', time: '1 hour ago', category: 'Markets', link: 'https://www.wsj.com/' },
+                { title: 'Technology sector faces regulatory scrutiny', time: '3 hours ago', category: 'Tech', link: 'https://www.wsj.com/' },
+                { title: 'Small business optimism rises', time: '5 hours ago', category: 'Business', link: 'https://www.wsj.com/' },
+                { title: 'Housing market data shows strength', time: '7 hours ago', category: 'Housing', link: 'https://www.wsj.com/' },
+                { title: 'CEO compensation trends analyzed', time: '9 hours ago', category: 'Leadership', link: 'https://www.wsj.com/' },
+                { title: 'Supply chain improvements noted', time: '11 hours ago', category: 'Logistics', link: 'https://www.wsj.com/' },
+                { title: 'Consumer spending remains strong', time: '13 hours ago', category: 'Consumer', link: 'https://www.wsj.com/' },
+                { title: 'Startup valuations face reality check', time: '15 hours ago', category: 'Startups', link: 'https://www.wsj.com/' },
+                { title: 'International trade flows shift', time: '17 hours ago', category: 'Trade', link: 'https://www.wsj.com/' }
+            ],
+            'feishu': [
+                { title: '飞书收藏：本周重点资讯整理', time: '30 minutes ago', category: 'My Collection', link: 'https://ncnr408dbok6.feishu.cn/base/R71JbhzOeaNzbbskmZrcxXFyn5f' },
+                { title: '飞书收藏：市场与宏观观察', time: '3 hours ago', category: 'Markets', link: 'https://ncnr408dbok6.feishu.cn/base/R71JbhzOeaNzbbskmZrcxXFyn5f' },
+                { title: '飞书收藏：AI 与科技动态', time: '8 hours ago', category: 'Technology', link: 'https://ncnr408dbok6.feishu.cn/base/R71JbhzOeaNzbbskmZrcxXFyn5f' }
+            ]
+        };
+
+        let autoRefreshInterval;
+        let isAutoRefresh = true;
+
+        // API Service Manager for handling multiple RSS services
+        class APIServiceManager {
+            constructor() {
+                this.serviceStatus = {};
+                this.cache = new Map();
+                this.cacheTimeout = 5 * 60 * 1000; // 5 minutes cache
+                this.backendUrl = window.location.protocol.startsWith('http')
+                    ? window.location.origin
+                    : 'http://localhost:3000';
+                const searchParams = new URLSearchParams(window.location.search);
+                this.apiKey =
+                    window.NEWS_DASHBOARD_API_KEY ||
+                    searchParams.get('api_key') ||
+                    localStorage.getItem('news_dashboard_api_key') ||
+                    '';
+            }
+
+            getAuthHeaders() {
+                if (!this.apiKey) {
+                    return {};
+                }
+                return { 'X-API-Key': this.apiKey };
+            }
+
+            isLocalApiEndpoint(endpoint) {
+                return endpoint.startsWith('/api/') || endpoint.startsWith(this.backendUrl);
+            }
+
+            // Get cache key for a source
+            getCacheKey(sourceId) {
+                return `news_${sourceId}`;
+            }
+
+            // Check if cached data is still valid
+            isCacheValid(cacheKey) {
+                const cached = this.cache.get(cacheKey);
+                if (!cached) return false;
+                return Date.now() - cached.timestamp < this.cacheTimeout;
+            }
+
+            // Get cached data
+            getCachedData(sourceId) {
+                const cacheKey = this.getCacheKey(sourceId);
+                if (this.isCacheValid(cacheKey)) {
+                    return this.cache.get(cacheKey).data;
+                }
+                return null;
+            }
+
+            // Set cached data
+            setCachedData(sourceId, data) {
+                const cacheKey = this.getCacheKey(sourceId);
+                this.cache.set(cacheKey, {
+                    data: data,
+                    timestamp: Date.now()
+                });
+            }
+
+            // Try local backend first, then fall back to third-party APIs
+            async fetchFromMultipleEndpoints(source) {
+                // Check cache first
+                const cachedData = this.getCachedData(source.id);
+                if (cachedData) {
+                    console.log(`Using cached data for ${source.name}`);
+                    return cachedData;
+                }
+
+                // Try local backend first
+                try {
+                    console.log(`Trying local backend for ${source.name}...`);
+                    const response = await fetch(`${this.backendUrl}/api/feed/${source.id}`, {
+                        headers: {
+                            'Accept': 'application/json',
+                            ...this.getAuthHeaders()
+                        }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.status === 'ok' && data.items && data.items.length > 0) {
+                            const newsItems = data.items.map(item => ({
+                                title: item.title,
+                                link: item.link,
+                                time: this.formatTime(item.pubDate),
+                                category: item.categories?.[0] || source.category
+                            }));
+                            this.setCachedData(source.id, newsItems);
+                            this.serviceStatus['LocalBackend'] = { status: 'working', lastUsed: Date.now() };
+                            console.log(`✅ Success with local backend for ${source.name}`);
+                            return newsItems;
+                        }
+                    }
+                } catch (error) {
+                    console.warn(`Local backend not available: ${error.message}`);
+                    this.serviceStatus['LocalBackend'] = { status: 'failed', error: error.message };
+                }
+
+                // Fall back to third-party APIs
+                for (let i = 0; i < source.apiEndpoints.length; i++) {
+                    const endpoint = source.apiEndpoints[i];
+                    const serviceName = this.getServiceName(endpoint);
+                    
+                    try {
+                        console.log(`Trying ${serviceName} for ${source.name}...`);
+                        const headers = {
+                            'Accept': 'application/json',
+                            'User-Agent': 'News-Aggregator/1.0'
+                        };
+                        if (this.isLocalApiEndpoint(endpoint)) {
+                            Object.assign(headers, this.getAuthHeaders());
+                        }
+                        const response = await fetch(endpoint, {
+                            timeout: 10000,
+                            headers
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                        }
+
+                        const data = await response.json();
+                        
+                        // Validate response data
+                        if (this.validateResponse(data, endpoint)) {
+                            const newsItems = this.parseResponse(data, source);
+                            
+                            // Cache the successful result
+                            this.setCachedData(source.id, newsItems);
+                            
+                            // Mark service as working
+                            this.serviceStatus[serviceName] = { status: 'working', lastUsed: Date.now() };
+                            
+                            console.log(`✅ Success with ${serviceName} for ${source.name}`);
+                            return newsItems;
+                        }
+                    } catch (error) {
+                        console.warn(`❌ Failed with ${serviceName} for ${source.name}:`, error.message);
+                        this.serviceStatus[serviceName] = { status: 'failed', error: error.message, lastFailed: Date.now() };
+                        
+                        // If this is the last endpoint, try the next one
+                        if (i < source.apiEndpoints.length - 1) {
+                            console.log(`Trying next endpoint for ${source.name}...`);
+                            await this.delay(1000); // Wait 1 second before next attempt
+                        }
+                    }
+                }
+
+                // All endpoints failed, return sample data
+                console.warn(`All endpoints failed for ${source.name}, using sample data`);
+                return sampleNewsData[source.id];
+            }
+
+            // Extract service name from endpoint
+            getServiceName(endpoint) {
+                if (endpoint.includes('api.rss2json.com')) return 'RSS2JSON';
+                if (endpoint.includes('r2rss.org')) return 'R2RSS';
+                if (endpoint.includes('rss2json.com')) return 'RSS2JSON-Alt';
+                return 'Unknown';
+            }
+
+            // Validate API response
+            validateResponse(data, endpoint) {
+                if (!data) return false;
+                
+                // RSS2JSON format
+                if (endpoint.includes('rss2json')) {
+                    return data.status === 'ok' && data.items && Array.isArray(data.items) && data.items.length > 0;
+                }
+                
+                // R2RSS format
+                if (endpoint.includes('r2rss.org')) {
+                    return data.items && Array.isArray(data.items) && data.items.length > 0;
+                }
+
+                // Local Other API format
+                if (endpoint.includes('/api/other')) {
+                    return data.status === 'ok' && data.items && Array.isArray(data.items) && data.items.length > 0;
+                }
+                
+                return false;
+            }
+
+            // Parse response data into standard format
+            parseResponse(data, source) {
+                let items = [];
+                
+                if (data.items) {
+                    items = data.items;
+                }
+                
+                return items.slice(0, 10).map(item => ({
+                    title: item.title || 'No title',
+                    time: item.pubDate ? formatTime(item.pubDate) : 'Just now',
+                    category: item.category || extractCategory(item.title || ''),
+                    link: item.link || source.url,
+                    description: item.description || ''
+                }));
+            }
+
+            // Delay helper
+            delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+
+            // Get service status for UI display
+            getServiceStatus() {
+                return this.serviceStatus;
+            }
+
+            // Clear cache
+            clearCache() {
+                this.cache.clear();
+                console.log('Cache cleared');
+            }
+
+            // Format time for backend responses
+            formatTime(pubDate) {
+                const date = new Date(pubDate);
+                const now = new Date();
+                const diffMinutes = Math.floor((now - date) / (1000 * 60));
+
+                if (diffMinutes < 60) {
+                    return `${diffMinutes} minutes ago`;
+                } else if (diffMinutes < 1440) {
+                    return `${Math.floor(diffMinutes / 60)} hours ago`;
+                } else {
+                    return `${Math.floor(diffMinutes / 1440)} days ago`;
+                }
+            }
+        }
+
+        // Initialize API Service Manager
+        const apiManager = new APIServiceManager();
+
+        // Connection and Cache Management
+        class ConnectionManager {
+            constructor() {
+                this.isOnline = navigator.onLine;
+                this.lastFetchOk = true;
+                this.lastNewsHash = new Map();
+                this.setupEventListeners();
+                this.updateConnectionStatus();
+            }
+
+            setupEventListeners() {
+                window.addEventListener('online', () => {
+                    this.isOnline = true;
+                    this.updateConnectionStatus();
+                    console.log('Connection restored');
+                });
+
+                window.addEventListener('offline', () => {
+                    this.isOnline = false;
+                    this.updateConnectionStatus();
+                    console.log('Connection lost');
+                });
+            }
+
+            updateConnectionStatus() {
+                const statusElement = document.getElementById('connectionStatus');
+                const isHealthy = this.isOnline && this.lastFetchOk;
+                if (isHealthy) {
+                    statusElement.className = 'connection-status online';
+                } else {
+                    statusElement.className = 'connection-status offline';
+                }
+            }
+
+            setFetchStatus(ok) {
+                this.lastFetchOk = ok;
+                this.updateConnectionStatus();
+            }
+
+            // Generate hash for news items to detect changes
+            generateNewsHash(newsItems) {
+                return newsItems.map(item => item.title + item.link).join('|');
+            }
+
+            // Check if news has changed
+            hasNewsChanged(sourceId, newsItems) {
+                const currentHash = this.generateNewsHash(newsItems);
+                const lastHash = this.lastNewsHash.get(sourceId);
+                
+                if (currentHash !== lastHash) {
+                    this.lastNewsHash.set(sourceId, currentHash);
+                    return true;
+                }
+                return false;
+            }
+
+            // Show loading overlay
+            showLoading(message = 'Loading news...') {
+                const overlay = document.getElementById('loadingOverlay');
+                const textElement = document.getElementById('loadingText');
+                textElement.textContent = message;
+                overlay.classList.add('active');
+            }
+
+            // Hide loading overlay
+            hideLoading() {
+                const overlay = document.getElementById('loadingOverlay');
+                overlay.classList.remove('active');
+            }
+        }
+
+        // Initialize Connection Manager
+        const connectionManager = new ConnectionManager();
+
+        // Enhanced localStorage for offline support
+        class OfflineStorage {
+            constructor() {
+                this.storageKey = 'newsAggregatorData';
+                this.maxStorageAge = 24 * 60 * 60 * 1000; // 24 hours
+            }
+
+            // Save data to localStorage
+            saveData(data) {
+                try {
+                    const storageData = {
+                        timestamp: Date.now(),
+                        data: data
+                    };
+                    localStorage.setItem(this.storageKey, JSON.stringify(storageData));
+                    console.log('Data saved to offline storage');
+                } catch (error) {
+                    console.warn('Failed to save to localStorage:', error);
+                }
+            }
+
+            // Load data from localStorage
+            loadData() {
+                try {
+                    const stored = localStorage.getItem(this.storageKey);
+                    if (!stored) return null;
+
+                    const storageData = JSON.parse(stored);
+                    
+                    // Check if data is still fresh
+                    if (Date.now() - storageData.timestamp > this.maxStorageAge) {
+                        console.log('Offline data expired');
+                        this.clearData();
+                        return null;
+                    }
+
+                    console.log('Loaded data from offline storage');
+                    return storageData.data;
+                } catch (error) {
+                    console.warn('Failed to load from localStorage:', error);
+                    return null;
+                }
+            }
+
+            // Clear localStorage
+            clearData() {
+                try {
+                    localStorage.removeItem(this.storageKey);
+                    console.log('Offline storage cleared');
+                } catch (error) {
+                    console.warn('Failed to clear localStorage:', error);
+                }
+            }
+
+            // Check if offline data exists
+            hasData() {
+                return localStorage.getItem(this.storageKey) !== null;
+            }
+        }
+
+        // Initialize Offline Storage
+        const offlineStorage = new OfflineStorage();
+
+        // Initialize the application
+        function initializeApp() {
+            // Try to load offline data first
+            const offlineData = offlineStorage.loadData();
+            if (offlineData) {
+                console.log('Using offline data');
+                renderNewsDashboardWithData(offlineData);
+            } else {
+                renderNewsDashboard();
+            }
+            
+            startAutoRefresh();
+            updateLastUpdatedTime();
+        }
+
+        const translationState = {
+            currentLang: 'en',
+            isTranslating: false
+        };
+        const translationCacheKey = 'newsroom_live_translation_cache_v1';
+
+        function escapeHtml(value) {
+            return String(value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function collectTranslatableElements() {
+            return Array.from(document.querySelectorAll('[data-i18n="1"]'));
+        }
+
+        function getCachePayload() {
+            try {
+                const raw = localStorage.getItem(translationCacheKey);
+                return raw ? JSON.parse(raw) : null;
+            } catch (error) {
+                return null;
+            }
+        }
+
+        function setCachePayload(payload) {
+            try {
+                localStorage.setItem(translationCacheKey, JSON.stringify(payload));
+            } catch (error) {
+                // Ignore storage errors
+            }
+        }
+
+        function buildTranslationFingerprint(texts) {
+            return texts.join('|');
+        }
+
+        function restoreEnglish() {
+            const elements = collectTranslatableElements();
+            elements.forEach(el => {
+                if (el.dataset.original) {
+                    el.textContent = el.dataset.original;
+                }
+            });
+        }
+
+        async function translateDashboard() {
+            if (translationState.isTranslating) {
+                return;
+            }
+            const elements = collectTranslatableElements();
+            if (elements.length === 0) {
+                return;
+            }
+            const texts = elements.map(el => el.dataset.original || el.textContent || '');
+            const fingerprint = buildTranslationFingerprint(texts);
+            const cached = getCachePayload();
+            if (cached && cached.fingerprint === fingerprint && Array.isArray(cached.translations)) {
+                cached.translations.forEach((text, idx) => {
+                    if (text) {
+                        elements[idx].textContent = text;
+                    }
+                });
+                return;
+            }
+            translationState.isTranslating = true;
+            try {
+                const response = await fetch('/api/translate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...apiManager.getAuthHeaders()
+                    },
+                    body: JSON.stringify({ texts, to: 'zh-Hans' })
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                const data = await response.json();
+                const translations = data.translations || [];
+                elements.forEach((el, idx) => {
+                    if (translations[idx]) {
+                        el.textContent = translations[idx];
+                    }
+                });
+                setCachePayload({ fingerprint, translations });
+            } catch (error) {
+                console.warn('Translation failed:', error);
+            } finally {
+                translationState.isTranslating = false;
+            }
+        }
+
+        function applyLanguagePreference() {
+            if (translationState.currentLang === 'zh') {
+                translateDashboard();
+            } else {
+                restoreEnglish();
+            }
+        }
+
+        const sourcePriority = [
+            'reuters',
+            'bloomberg',
+            'bbc',
+            'nyt',
+            'wsj',
+            'ft',
+            'economist',
+            'guardian',
+            'scmp',
+            'mit-tr',
+            'newyorker',
+            'feishu',
+            'other'
+        ];
+        const CARD_ITEMS_LIMIT = 8;
+
+        function getOrderedSources() {
+            const rank = new Map(sourcePriority.map((id, index) => [id, index]));
+            return newsSources.slice().sort((a, b) => {
+                const ra = rank.has(a.id) ? rank.get(a.id) : 999;
+                const rb = rank.has(b.id) ? rank.get(b.id) : 999;
+                return ra - rb;
+            });
+        }
+
+        // Render news dashboard
+        function renderNewsDashboard() {
+            const dashboard = document.getElementById('newsDashboard');
+            dashboard.innerHTML = '';
+            const sourceId = getSourceFromQuery();
+            if (sourceId) {
+                const source = newsSources.find(item => item.id === sourceId);
+                if (source && sampleNewsData[sourceId]) {
+                    renderSourceDetailView(source, sampleNewsData[sourceId]);
+                    return;
+                }
+            }
+
+            getOrderedSources().forEach(source => {
+                const newsCard = createNewsCard(source, sampleNewsData[source.id]);
+                dashboard.appendChild(newsCard);
+            });
+            applyLanguagePreference();
+        }
+
+        // Create news card element
+        function createNewsCard(source, newsItems) {
+            const safeItems = Array.isArray(newsItems) ? newsItems : [];
+            const previewItems = safeItems.slice(0, CARD_ITEMS_LIMIT);
+            const card = document.createElement('div');
+            card.className = 'news-card';
+            card.innerHTML = `
+                <div class="card-header">
+                    <div class="source-info">
+                        <div class="source-logo" style="background: ${source.color}; color: ${source.textColor || 'white'}">
+                            ${source.logo}
+                        </div>
+                        <div class="source-details">
+                            <h3 data-i18n="1" data-original="${escapeHtml(source.name)}">${escapeHtml(source.name)}</h3>
+                            <div class="category" data-i18n="1" data-original="${escapeHtml(source.category)}">${escapeHtml(source.category)}</div>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        ${safeItems.length > CARD_ITEMS_LIMIT ? `<button class="more-btn" type="button" onclick="openSourceDetail('${source.id}')">more&gt;&gt;</button>` : ''}
+                        <div class="status-indicator"></div>
+                    </div>
+                </div>
+                <div class="news-items">
+                    ${previewItems.map(item => `
+                        <div class="news-item" onclick="openArticle('${item.link}')">
+                            <div class="news-item-title" data-i18n="1" data-original="${escapeHtml(item.title)}">${escapeHtml(item.title)}</div>
+                            <div class="news-item-meta">
+                                <div class="news-item-time">
+                                    <i class="fas fa-clock"></i> ${item.time}
+                                </div>
+                                <div class="news-item-tag" data-i18n="1" data-original="${escapeHtml(item.category)}">${escapeHtml(item.category)}</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            return card;
+        }
+
+        // Fetch RSS feed using API Service Manager
+        async function fetchRSSFeed(source) {
+            return await apiManager.fetchFromMultipleEndpoints(source);
+        }
+
+        // Sort news items by time (most recent first)
+        function sortNewsByTime(newsItems) {
+            return newsItems.sort((a, b) => {
+                // Convert time strings to numeric values for comparison
+                const timeA = convertTimeToMinutes(a.time);
+                const timeB = convertTimeToMinutes(b.time);
+                return timeA - timeB; // Lower minutes = more recent
+            });
+        }
+
+        function normalizeTitleKey(title) {
+            return String(title || '')
+                .toLowerCase()
+                .replace(/https?:\/\/\S+/g, ' ')
+                .replace(/[^a-z0-9\u4e00-\u9fff]+/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
+
+        function normalizeLinkKey(link) {
+            const raw = String(link || '').trim();
+            if (!raw) return '';
+            try {
+                const parsed = new URL(raw, window.location.origin);
+                const blockedParams = new Set([
+                    'utm_source',
+                    'utm_medium',
+                    'utm_campaign',
+                    'utm_term',
+                    'utm_content',
+                    'gclid',
+                    'fbclid',
+                    'spm',
+                    'from'
+                ]);
+                for (const key of Array.from(parsed.searchParams.keys())) {
+                    if (blockedParams.has(key.toLowerCase())) {
+                        parsed.searchParams.delete(key);
+                    }
+                }
+                const host = parsed.hostname.toLowerCase();
+                const pathname = parsed.pathname.replace(/\/+$/, '') || '/';
+                const search = parsed.searchParams.toString();
+                return `${host}${pathname}${search ? `?${search}` : ''}`;
+            } catch (error) {
+                return raw.toLowerCase();
+            }
+        }
+
+        function dedupeNewsItems(newsItems) {
+            const seenLinks = new Set();
+            const seenTitles = new Set();
+            const output = [];
+
+            for (const item of newsItems) {
+                const linkKey = normalizeLinkKey(item.link);
+                const titleKey = normalizeTitleKey(item.title);
+
+                if (linkKey && seenLinks.has(linkKey)) {
+                    continue;
+                }
+                if (titleKey && seenTitles.has(titleKey)) {
+                    continue;
+                }
+
+                if (linkKey) seenLinks.add(linkKey);
+                if (titleKey) seenTitles.add(titleKey);
+                output.push(item);
+            }
+
+            return output;
+        }
+
+        // Convert time string to minutes ago
+        function convertTimeToMinutes(timeString) {
+            if (timeString.includes('minutes ago')) {
+                return parseInt(timeString) || 0;
+            } else if (timeString.includes('hour ago')) {
+                return (parseInt(timeString) || 1) * 60;
+            } else if (timeString.includes('hours ago')) {
+                return (parseInt(timeString) || 1) * 60;
+            } else if (timeString.includes('day ago')) {
+                return (parseInt(timeString) || 1) * 1440;
+            } else if (timeString.includes('days ago')) {
+                return (parseInt(timeString) || 1) * 1440;
+            }
+            return 9999; // Default for unrecognized formats
+        }
+
+        // Render latest news items
+        function renderLatestNews(latestNews) {
+            const dashboard = document.getElementById('newsDashboard');
+            dashboard.innerHTML = '';
+
+            if (latestNews.length === 0) {
+                dashboard.innerHTML = '<div class="error"><i class="fas fa-exclamation-triangle"></i><p>No news items found. Please try again later.</p></div>';
+                return;
+            }
+
+            // Create a single card showing the latest 8 news items
+            const latestNewsCard = document.createElement('div');
+            latestNewsCard.className = 'news-card';
+            latestNewsCard.innerHTML = `
+                <div class="card-header">
+                    <div class="source-info">
+                        <div class="source-logo" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white;">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="source-details">
+                            <h3 data-i18n="1" data-original="Latest 8 News Items">Latest 8 News Items</h3>
+                            <div class="category" data-i18n="1" data-original="From All Sources">From All Sources</div>
+                        </div>
+                    </div>
+                    <div class="status-indicator"></div>
+                </div>
+                <div class="news-items">
+                    ${latestNews.map((item, index) => `
+                        <div class="news-item" onclick="openArticle('${item.link}')" style="border-left-color: ${item.sourceColor};">
+                            <div class="news-item-title">
+                                <span style="display: inline-block; width: 30px; height: 20px; background: ${item.sourceColor}; color: ${item.sourceTextColor}; border-radius: 4px; text-align: center; font-size: 0.7rem; font-weight: bold; margin-right: 8px; line-height: 20px;">${item.sourceLogo}</span>
+                                <span data-i18n="1" data-original="${escapeHtml(item.title)}">${escapeHtml(item.title)}</span>
+                            </div>
+                            <div class="news-item-meta">
+                                <div class="news-item-time">
+                                    <i class="fas fa-clock"></i> ${item.time} • ${item.sourceName}
+                                </div>
+                                <div class="news-item-tag" data-i18n="1" data-original="${escapeHtml(item.category)}">${escapeHtml(item.category)}</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            dashboard.appendChild(latestNewsCard);
+            applyLanguagePreference();
+        }
+
+        // Format publication time
+        function formatTime(pubDate) {
+            const date = new Date(pubDate);
+            const now = new Date();
+            const diffMinutes = Math.floor((now - date) / (1000 * 60));
+
+            if (diffMinutes < 60) {
+                return `${diffMinutes} minutes ago`;
+            } else if (diffMinutes < 1440) {
+                return `${Math.floor(diffMinutes / 60)} hours ago`;
+            } else {
+                return `${Math.floor(diffMinutes / 1440)} days ago`;
+            }
+        }
+
+        // Extract category from title
+        function extractCategory(title) {
+            const categories = ['Politics', 'Technology', 'Business', 'Science', 'Culture', 'World', 'Finance', 'Health'];
+            const lowerTitle = title.toLowerCase();
+
+            for (let category of categories) {
+                if (lowerTitle.includes(category.toLowerCase())) {
+                    return category;
+                }
+            }
+
+            return 'General';
+        }
+
+        // Open article in new tab
+        function openArticle(url) {
+            window.open(url, '_blank');
+        }
+
+        function getSourceFromQuery() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('source') || '';
+        }
+
+        function openSourceDetail(sourceId) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('source', sourceId);
+            window.location.href = url.toString();
+        }
+
+        function clearSourceQueryParam() {
+            const url = new URL(window.location.href);
+            if (url.searchParams.has('source')) {
+                url.searchParams.delete('source');
+                window.history.replaceState({}, '', url.toString());
+            }
+        }
+
+        function backToMainView() {
+            clearSourceQueryParam();
+            renderNewsDashboardWithData(offlineStorage.loadData() || sampleNewsData);
+        }
+
+        function renderSourceDetailView(source, newsItems) {
+            const dashboard = document.getElementById('newsDashboard');
+            const safeItems = sortNewsByTime([...(newsItems || [])]).slice(0, CARD_ITEMS_LIMIT);
+            dashboard.innerHTML = '';
+
+            const backWrap = document.createElement('div');
+            backWrap.className = 'detail-back';
+            backWrap.innerHTML = `<button class="control-btn" type="button" onclick="backToMainView()"><i class="fas fa-arrow-left"></i> Back</button>`;
+            dashboard.appendChild(backWrap);
+
+            const detailCard = document.createElement('div');
+            detailCard.className = 'news-card';
+            detailCard.innerHTML = `
+                <div class="card-header">
+                    <div class="source-info">
+                        <div class="source-logo" style="background: ${source.color}; color: ${source.textColor || 'white'}">
+                            ${source.logo}
+                        </div>
+                        <div class="source-details">
+                            <h3 data-i18n="1" data-original="${escapeHtml(source.name + ' - Latest 8')}">${escapeHtml(source.name + ' - Latest 8')}</h3>
+                            <div class="category" data-i18n="1" data-original="${escapeHtml(source.category)}">${escapeHtml(source.category)}</div>
+                        </div>
+                    </div>
+                    <div class="status-indicator"></div>
+                </div>
+                <div class="news-items">
+                    ${safeItems.map(item => `
+                        <div class="news-item" onclick="openArticle('${item.link}')">
+                            <div class="news-item-title" data-i18n="1" data-original="${escapeHtml(item.title)}">${escapeHtml(item.title)}</div>
+                            <div class="news-item-meta">
+                                <div class="news-item-time">
+                                    <i class="fas fa-clock"></i> ${item.time}
+                                </div>
+                                <div class="news-item-tag" data-i18n="1" data-original="${escapeHtml(item.category)}">${escapeHtml(item.category)}</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            dashboard.appendChild(detailCard);
+            applyLanguagePreference();
+        }
+
+        // Render news dashboard with data
+        function renderNewsDashboardWithData(allSourceData) {
+            const sourceId = getSourceFromQuery();
+            if (sourceId) {
+                const source = newsSources.find(item => item.id === sourceId);
+                if (source && allSourceData && Array.isArray(allSourceData[sourceId])) {
+                    renderSourceDetailView(source, allSourceData[sourceId]);
+                    return;
+                }
+            }
+            const dashboard = document.getElementById('newsDashboard');
+            dashboard.innerHTML = '';
+
+            getOrderedSources().forEach(source => {
+                const newsItems = allSourceData[source.id];
+                if (newsItems) {
+                    const newsCard = createNewsCard(source, newsItems);
+                    dashboard.appendChild(newsCard);
+                }
+            });
+            applyLanguagePreference();
+        }
+
+        // Enhanced refresh with incremental updates
+        async function refreshAllNews() {
+            if (!connectionManager.isOnline) {
+                connectionManager.showLoading('Offline - Using cached data...');
+                connectionManager.setFetchStatus(false);
+                setTimeout(() => {
+                    connectionManager.hideLoading();
+                    const offlineData = offlineStorage.loadData();
+                    if (offlineData) {
+                        renderNewsDashboardWithData(offlineData);
+                    }
+                }, 1000);
+                return;
+            }
+
+            connectionManager.showLoading('Fetching latest news from all sources...');
+            connectionManager.updateConnectionStatus();
+
+            try {
+                const allNewsItems = [];
+                const allSourceData = {};
+                let successCount = 0;
+
+                // Fetch news from all sources concurrently
+                const fetchPromises = newsSources.map(async source => {
+                    try {
+                        const newsItems = await fetchRSSFeed(source);
+                        successCount += 1;
+                        const enrichedItems = newsItems.map(item => ({
+                            ...item,
+                            sourceName: source.name,
+                            sourceLogo: source.logo,
+                            sourceColor: source.color,
+                            sourceTextColor: source.textColor || 'white',
+                            sourceUrl: source.url,
+                            sourceCategory: source.category
+                        }));
+
+                        // Check if news has changed
+                        if (connectionManager.hasNewsChanged(source.id, newsItems)) {
+                            console.log(`News updated for ${source.name}`);
+                        }
+
+                        allSourceData[source.id] = newsItems;
+                        return enrichedItems;
+                    } catch (error) {
+                        console.warn(`Failed to fetch from ${source.name}:`, error);
+                        // Use cached data if available
+                        const cachedData = apiManager.getCachedData(source.id);
+                        if (cachedData) {
+                            allSourceData[source.id] = cachedData;
+                            return cachedData.map(item => ({
+                                ...item,
+                                sourceName: source.name,
+                                sourceLogo: source.logo,
+                                sourceColor: source.color,
+                                sourceTextColor: source.textColor || 'white',
+                                sourceUrl: source.url,
+                                sourceCategory: source.category
+                            }));
+                        }
+                        return [];
+                    }
+                });
+
+                const results = await Promise.all(fetchPromises);
+                results.forEach(newsItems => allNewsItems.push(...newsItems));
+                connectionManager.setFetchStatus(successCount > 0);
+
+                // Save to offline storage
+                offlineStorage.saveData(allSourceData);
+
+                // Sort first, then dedupe globally, then take latest 8
+                const sortedNews = sortNewsByTime(allNewsItems);
+                const latestNews = dedupeNewsItems(sortedNews).slice(0, 8);
+                const sourceId = getSourceFromQuery();
+                if (sourceId) {
+                    const source = newsSources.find(item => item.id === sourceId);
+                    if (source && Array.isArray(allSourceData[sourceId])) {
+                        renderSourceDetailView(source, allSourceData[sourceId]);
+                    } else {
+                        renderLatestNews(latestNews);
+                    }
+                } else {
+                    renderLatestNews(latestNews);
+                }
+                updateLastUpdatedTime();
+                connectionManager.hideLoading();
+            } catch (error) {
+                console.error('Refresh failed:', error);
+                connectionManager.setFetchStatus(false);
+                connectionManager.hideLoading();
+                
+                // Try to use offline data
+                const offlineData = offlineStorage.loadData();
+                if (offlineData) {
+                    renderNewsDashboardWithData(offlineData);
+                } else {
+                    const dashboard = document.getElementById('newsDashboard');
+                    dashboard.innerHTML = '<div class="error"><i class="fas fa-exclamation-triangle"></i><p>Failed to refresh news. No offline data available.</p></div>';
+                    setTimeout(renderNewsDashboard, 3000);
+                }
+            }
+        }
+
+        // Show all sources view
+        function showAllSources() {
+            clearSourceQueryParam();
+            connectionManager.showLoading('Loading all sources...');
+            
+            // Try to get fresh data for all sources
+            const allSourceData = {};
+            const fetchPromises = newsSources.map(async source => {
+                try {
+                    const newsItems = await fetchRSSFeed(source);
+                    allSourceData[source.id] = newsItems;
+                    return true;
+                } catch (error) {
+                    console.warn(`Failed to fetch from ${source.name}:`, error);
+                    // Use cached data
+                    const cachedData = apiManager.getCachedData(source.id);
+                    if (cachedData) {
+                        allSourceData[source.id] = cachedData;
+                        return true;
+                    }
+                    return false;
+                }
+            });
+
+            Promise.all(fetchPromises).then(() => {
+                renderNewsDashboardWithData(allSourceData);
+                offlineStorage.saveData(allSourceData);
+                connectionManager.hideLoading();
+                updateLastUpdatedTime();
+            });
+        }
+
+        // Clear cache function
+        function clearCache() {
+            apiManager.clearCache();
+            offlineStorage.clearData();
+            connectionManager.lastNewsHash.clear();
+            
+            // Show confirmation
+            const dashboard = document.getElementById('newsDashboard');
+            dashboard.innerHTML = '<div class="loading"><i class="fas fa-check-circle"></i><p>Cache cleared successfully!</p></div>';
+            
+            setTimeout(() => {
+                renderNewsDashboard();
+            }, 1500);
+        }
+
+        // Toggle auto-refresh
+        function toggleAutoRefresh() {
+            isAutoRefresh = !isAutoRefresh;
+            const statusElement = document.getElementById('autoRefreshStatus');
+
+            if (isAutoRefresh) {
+                statusElement.textContent = 'Auto-refresh: ON';
+                startAutoRefresh();
+            } else {
+                statusElement.textContent = 'Auto-refresh: OFF';
+                stopAutoRefresh();
+            }
+        }
+
+        // Enhanced auto-refresh with smart timing
+        function startAutoRefresh() {
+            if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+            
+            // Smart refresh: more frequent during active hours
+            const hour = new Date().getHours();
+            let refreshInterval;
+            
+            if (hour >= 6 && hour <= 22) {
+                refreshInterval = 300000; // 5 minutes during active hours
+            } else {
+                refreshInterval = 600000; // 10 minutes during night hours
+            }
+            
+            autoRefreshInterval = setInterval(() => {
+                if (document.visibilityState === 'visible') {
+                    refreshAllNews();
+                }
+            }, refreshInterval);
+            
+            console.log(`Auto-refresh set to ${refreshInterval/60000} minutes`);
+        }
+
+        // Stop auto-refresh
+        function stopAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+            }
+        }
+
+        // Export news data
+        function exportNews() {
+            const data = {
+                timestamp: new Date().toISOString(),
+                sources: newsSources.map(source => ({
+                    name: source.name,
+                    category: source.category,
+                    url: source.url
+                })),
+                serviceStatus: apiManager.getServiceStatus(),
+                cacheInfo: {
+                    cachedSources: Array.from(apiManager.cache.keys()),
+                    cacheSize: apiManager.cache.size
+                }
+            };
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `news-sources-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Update last updated time
+        function updateLastUpdatedTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString();
+            document.getElementById('lastUpdated').textContent = `Last updated: ${timeString}`;
+            const meta = document.getElementById('lastUpdatedMeta');
+            if (meta) {
+                meta.textContent = `Updated: ${timeString}`;
+            }
+        }
+
+        // Handle page visibility changes
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible' && isAutoRefresh) {
+                // Refresh when page becomes visible
+                refreshAllNews();
+            }
+        });
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeApp();
+            const langEnBtn = document.getElementById('lang-en');
+            const langZhBtn = document.getElementById('lang-zh');
+            if (langEnBtn && langZhBtn) {
+                langEnBtn.addEventListener('click', () => {
+                    translationState.currentLang = 'en';
+                    langEnBtn.classList.add('active');
+                    langZhBtn.classList.remove('active');
+                    restoreEnglish();
+                });
+                langZhBtn.addEventListener('click', () => {
+                    translationState.currentLang = 'zh';
+                    langZhBtn.classList.add('active');
+                    langEnBtn.classList.remove('active');
+                    translateDashboard();
+                });
+            }
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            stopAutoRefresh();
+            // Save current state before leaving
+            const cards = document.querySelectorAll('.news-card');
+            if (cards.length > 0) {
+                // This is a simplified approach - in production, you'd want to save the actual data
+                console.log('Saving state before unload...');
+            }
+        });
+    </script>
+</body>
+</html>

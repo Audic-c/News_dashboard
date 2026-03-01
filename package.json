@@ -1,0 +1,27 @@
+{
+  "name": "webmerge-dashboard",
+  "version": "1.0.0",
+  "description": "Premium News Aggregator with RSS Proxy Backend",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "overview": "node scripts/news-overview.js --channels local",
+    "overview:live": "node scripts/news-overview.js --channels local --live",
+    "overview:publish": "node scripts/news-overview.js --channels publish",
+    "overview:wechat-official-account": "node scripts/news-overview.js --channels wechat_official_account",
+    "wechat:check": "node scripts/wechat-credential-check.js",
+    "preflight:cloud": "node scripts/preflight-check.js",
+    "overview:all": "node scripts/news-overview.js --channels all",
+    "notion:snapshot": "node Additional/notion-page-snapshot.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "playwright": "^1.58.2",
+    "rss-parser": "^3.13.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

@@ -301,6 +301,73 @@ function feishuToDate(value, fallback) {
     return fallbackDate;
 }
 
+function normalizeSourceFromLink(link, fallback = '', options = {}) {
+    const allowHostFallback = options.allowHostFallback !== false;
+    if (!link) return fallback;
+    try {
+        const host = new URL(link).hostname.toLowerCase();
+        if (host.includes('economist.com')) return 'The Economist';
+        if (host.includes('ft.com')) return 'Financial Times';
+        if (host.includes('bloomberg.com')) return 'Bloomberg';
+        if (host.includes('nytimes.com')) return 'The New York Times';
+        if (host.includes('bbc.com') || host.includes('bbc.co.uk')) return 'BBC News';
+        if (host.includes('reuters.com')) return 'Reuters';
+        if (host.includes('scmp.com')) return 'South China Morning Post';
+        if (host.includes('technologyreview.com')) return 'MIT Technology Review';
+        if (host.includes('newyorker.com')) return 'The New Yorker';
+        if (host.includes('theguardian.com') || host.includes('guim.co.uk')) return 'The Guardian';
+        if (host.includes('wsj.com') || host.includes('a.dj.com')) return 'Wall Street Journal';
+        return allowHostFallback ? (fallback || host) : fallback;
+    } catch (_error) {
+        return fallback;
+    }
+}
+
+function isLikelyDomainOrUrl(value) {
+    const raw = String(value || '').trim();
+    if (!raw) return false;
+    return (
+        /^https?:\/\//i.test(raw)
+        || (/^[a-z0-9.-]+\.[a-z]{2,}(?:\/[\s\S]*)?$/i.test(raw) && !/\s/.test(raw))
+    );
+}
+
+function normalizeFeishuSourceName(sourceName, link, fallbackName = '飞书收藏') {
+    const normalized = normalizeSourceLabel(sourceName, link, fallbackName);
+    if (isLikelyDomainOrUrl(normalized)) {
+        return normalizeSourceFromLink(link, fallbackName) || fallbackName;
+    }
+    return normalized;
+}
+
+function normalizeSourceLabel(sourceName, link, fallbackName = 'Unknown Source') {
+    const raw = String(sourceName || '').trim();
+    if (!raw) {
+        return normalizeSourceFromLink(link, fallbackName, { allowHostFallback: false }) || fallbackName;
+    }
+
+    const mappedFromRawUrl = normalizeSourceFromLink(raw, '', { allowHostFallback: false });
+    if (mappedFromRawUrl) {
+        return mappedFromRawUrl;
+    }
+
+    const looksLikeDomainOrUrl = isLikelyDomainOrUrl(raw);
+    if (looksLikeDomainOrUrl) {
+        const maybeUrl = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+        const mappedFromDomain = normalizeSourceFromLink(maybeUrl, '', { allowHostFallback: false });
+        if (mappedFromDomain) {
+            return mappedFromDomain;
+        }
+    }
+
+    const mappedFromLink = normalizeSourceFromLink(link, '', { allowHostFallback: false });
+    if (mappedFromLink) {
+        return mappedFromLink;
+    }
+
+    return raw || fallbackName;
+}
+
 async function getFeishuOverviewToken() {
     const feishuConfig = getFeishuOverviewConfig();
     if (feishuOverviewToken && Date.now() < feishuOverviewTokenExpiry) {
@@ -371,7 +438,8 @@ async function fetchFeishuOverviewItems(source, options = {}) {
             const fields = record.fields || {};
             const title = feishuToText(feishuGetFieldValue(fields, ['Text', '标题', 'Title', 'Name']));
             const link = feishuToUrl(feishuGetFieldValue(fields, ['URL', 'Link', '链接', '网址'])) || source.url || '';
-            const sourceName = feishuToText(feishuGetFieldValue(fields, ['Source', '来源'])) || source.name || '飞书收藏';
+            const sourceNameRaw = feishuToText(feishuGetFieldValue(fields, ['Source', '来源'])) || source.name || '飞书收藏';
+            const sourceName = normalizeFeishuSourceName(sourceNameRaw, link, source.name || '飞书收藏');
             const date = feishuToDate(
                 feishuGetFieldValue(fields, ['Published Date', '发布时间', 'Date', '发布于']),
                 feishuToDate(record.created_time, new Date())
@@ -379,7 +447,11 @@ async function fetchFeishuOverviewItems(source, options = {}) {
 
             if (!title || !link) continue;
             if (date && date.getTime() < cutoffMs) continue;
-            if (sourceFilters.size > 0 && !sourceFilters.has(String(sourceName).trim().toLowerCase())) {
+            if (
+                sourceFilters.size > 0
+                && !sourceFilters.has(String(sourceName).trim().toLowerCase())
+                && !sourceFilters.has(String(sourceNameRaw).trim().toLowerCase())
+            ) {
                 continue;
             }
 
@@ -505,7 +577,7 @@ async function collectArticles(maxPerSource) {
             items.push({
                 title,
                 link,
-                source: source.name,
+                source: normalizeSourceLabel(source.name, link, source.name),
                 date: date || new Date()
             });
         }
@@ -855,12 +927,13 @@ function stripMetaLines(lines) {
 function groupSourcesByPublication(items, limitPerSource = 3) {
     const map = new Map();
     for (const item of items) {
-        if (!map.has(item.source)) {
-            map.set(item.source, []);
+        const normalizedSource = normalizeSourceLabel(item.source, item.link, 'Unknown Source');
+        if (!map.has(normalizedSource)) {
+            map.set(normalizedSource, []);
         }
-        const list = map.get(item.source);
+        const list = map.get(normalizedSource);
         if (list.length < limitPerSource) {
-            list.push(item);
+            list.push({ ...item, source: normalizedSource });
         }
     }
     return map;
@@ -1103,7 +1176,7 @@ function warnIfSnapshotStale(snapshotPath, maxAgeHours = 24) {
 function flattenGroupedSources(groups) {
     const output = [];
     for (const group of groups || []) {
-        const sourceName = group && group.source ? group.source : 'Unknown Source';
+        const sourceName = normalizeSourceLabel(group && group.source ? group.source : '', '', 'Unknown Source');
         for (const item of group.items || []) {
             output.push({
                 source: sourceName,
@@ -1246,7 +1319,8 @@ function getLocale(lang) {
 
 function localizeSourceName(name, lang) {
     const locale = getLocale(lang);
-    return (locale.sourceNames && locale.sourceNames[name]) || name;
+    const normalized = normalizeSourceLabel(name, '', name || 'Unknown Source');
+    return (locale.sourceNames && locale.sourceNames[normalized]) || normalized;
 }
 
 function localizeTimeZoneName(timeZone, lang) {
@@ -1398,14 +1472,15 @@ async function saveOverviewRenderArtifacts(payload, options = {}) {
         split: false,
         segmentHeight: 0,
         overlap: 0,
-        coverSquare: false
+        coverSquare: false,
+        targetParts: 0
     };
     if (renderProfile === 'wechat_official_account') {
-        profileDefaults = { width: 900, scale: 2, format: 'jpg', quality: 86, split: true, segmentHeight: 2200, overlap: 80, coverSquare: false };
+        profileDefaults = { width: 900, scale: 2, format: 'jpg', quality: 86, split: true, segmentHeight: 2200, overlap: 80, coverSquare: false, targetParts: 0 };
     } else if (renderProfile === 'xiaohongshu') {
-        profileDefaults = { width: 1080, scale: 2, format: 'jpg', quality: 87, split: true, segmentHeight: 1800, overlap: 100, coverSquare: false };
+        profileDefaults = { width: 1080, scale: 2, format: 'jpg', quality: 87, split: true, segmentHeight: 1800, overlap: 100, coverSquare: false, targetParts: 3 };
     } else if (renderProfile === 'xiaohongshu-square') {
-        profileDefaults = { width: 1080, scale: 2, format: 'jpg', quality: 88, split: true, segmentHeight: 1080, overlap: 80, coverSquare: true };
+        profileDefaults = { width: 1080, scale: 2, format: 'jpg', quality: 88, split: true, segmentHeight: 1080, overlap: 80, coverSquare: true, targetParts: 3 };
     }
 
     const outputDir = path.join(ROOT_DIR, process.env.NEWS_OVERVIEW_RENDER_DIR || 'logs');
@@ -1431,6 +1506,7 @@ async function saveOverviewRenderArtifacts(payload, options = {}) {
     const splitEnabled = parseBool(process.env.NEWS_OVERVIEW_RENDER_SPLIT, profileDefaults.split);
     const segmentHeight = Number(process.env.NEWS_OVERVIEW_RENDER_SEGMENT_HEIGHT || profileDefaults.segmentHeight || 2200);
     const overlap = Math.max(0, Number(process.env.NEWS_OVERVIEW_RENDER_SEGMENT_OVERLAP || profileDefaults.overlap || 0));
+    const targetParts = Math.max(0, Number(process.env.NEWS_OVERVIEW_RENDER_TARGET_PARTS || profileDefaults.targetParts || 0));
     const coverSquareEnabled = parseBool(process.env.NEWS_OVERVIEW_RENDER_COVER_SQUARE, profileDefaults.coverSquare);
     const xhsAliasEnabled = parseBool(
         process.env.NEWS_OVERVIEW_RENDER_XHS_ALIAS,
@@ -1486,13 +1562,16 @@ async function saveOverviewRenderArtifacts(payload, options = {}) {
 
         if (splitEnabled) {
             const totalHeight = Math.max(1, scrollHeight);
-            const step = Math.max(1, segmentHeight - overlap);
+            const effectiveSegmentHeight = targetParts > 1
+                ? Math.max(1, Math.ceil(totalHeight / targetParts) + overlap)
+                : segmentHeight;
+            const step = Math.max(1, effectiveSegmentHeight - overlap);
             const baseWidth = Number.isFinite(width) && width > 0 ? width : 1080;
-            let viewportHeight = Math.max(1, Math.min(segmentHeight, totalHeight));
+            let viewportHeight = Math.max(1, Math.min(effectiveSegmentHeight, totalHeight));
             await page.setViewportSize({ width: baseWidth, height: viewportHeight });
             let index = 1;
             for (let y = 0; y < totalHeight; y += step) {
-                const clipHeight = Math.min(segmentHeight, totalHeight - y);
+                const clipHeight = Math.min(effectiveSegmentHeight, totalHeight - y);
                 if (clipHeight <= 0) break;
                 if (clipHeight !== viewportHeight) {
                     viewportHeight = clipHeight;
@@ -2147,7 +2226,8 @@ async function main() {
 
         const dateLabel = formatDateYMD(new Date(), timeZone);
         const title = `News Overview - ${dateLabel}`;
-        const grouped = groupSourcesByPublication(items, 3);
+        const groupedSourceItems = combinedItems.length > 0 ? combinedItems : items;
+        const grouped = groupSourcesByPublication(groupedSourceItems, 3);
         jsonPayload = {
             generatedAt: getCurrentTimeInZone(timeZone),
             timeZone,
